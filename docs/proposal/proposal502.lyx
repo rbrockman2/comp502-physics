@@ -26,7 +26,16 @@
 \index_command default
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry true
 \use_amsmath 1
@@ -265,13 +274,6 @@ Graphs of Derived Parameters
 \end_layout
 
 \begin_layout Standard
-The following graphs compare parameters from the supersymmetric particles
- with parameters from the background event type.
-\end_layout
-
-\begin_layout Standard
-\noindent
-\align center
 \begin_inset Float figure
 placement H
 wide false
@@ -282,24 +284,19 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_m2a.png
-	display false
+	filename ../../plots/plot_m2a.png
 	scale 30
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_m2b.png
-	display false
+	filename ../../plots/plot_m2b.png
 	scale 30
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption
 
 \begin_layout Plain Layout
@@ -307,7 +304,7 @@ These compare the M2
 \begin_inset Note Note
 status open
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Don't know what M2 is
 \end_layout
 
@@ -323,6 +320,10 @@ Don't know what M2 is
 
 \end_layout
 
+\begin_layout Plain Layout
+
+\end_layout
+
 \end_inset
 
 
@@ -332,6 +333,7 @@ Don't know what M2 is
 \noindent
 \align center
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -340,16 +342,14 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_m3a.png
-	display false
+	filename ../../plots/plot_m3a.png
 	scale 30
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_m3b.png
-	display false
+	filename ../../plots/plot_m3b.png
 	scale 30
 
 \end_inset
@@ -365,7 +365,7 @@ These compare the M3
 \begin_inset Note Note
 status open
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Don't know what M3 is
 \end_layout
 
@@ -390,6 +390,7 @@ Don't know what M3 is
 \noindent
 \align center
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -398,16 +399,14 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_angles_j1.png
-	display false
+	filename ../../plots/plot_angles_j1.png
 	scale 30
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_angles_j2.png
-	display false
+	filename ../../plots/plot_angles_j2.png
 	scale 30
 
 \end_inset
@@ -439,6 +438,7 @@ These figures compare the azimuthal angles of Jet 1 (LEFT) and Jet 2 (RIGHT)
 \noindent
 \align center
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -447,8 +447,42 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/plots/plot_angles_b.png
-	display false
+	filename ../../plots/plot_angles_j2.png
+	scale 30
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+bdt-separation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename ../../plots/bdt-separation.png
 	scale 30
 
 \end_inset
@@ -514,8 +548,8 @@ status open
 \begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
-bibfiles "/Users/me/Documents/Tower_Repository/comp502-physics/docs/elec502proj"
-options "apsrev"
+bibfiles "../elec502proj"
+options "../utphys"
 
 \end_inset
 

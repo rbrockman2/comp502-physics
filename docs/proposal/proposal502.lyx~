@@ -258,6 +258,11 @@ Contingent upon the time taken to complete the steps mentioned thus far,
  detected separating parameters coincide with the derived parameters.
  Alternatively, we could use the number of significant dimensions from a
  GHA based approach to indicate how complex the events are.
+ overlap is seen between the may prove more useful in determining a “natural”
+ dimensionality of the data.
+ Ideally, we will derive different higher-level features from the data with
+ our own methods.
+ 
 \end_layout
 
 \begin_layout Section*

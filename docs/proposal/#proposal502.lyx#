@@ -256,8 +256,12 @@ Contingent upon the time taken to complete the steps mentioned thus far,
  types of events.
  We can also compare these methods to the derived parameters to see if the
  detected separating parameters coincide with the derived parameters.
- Alternatively, we could use the number of significant dimensions from a
- GHA based approach to indicate how complex the events are.
+ Furthermore we could use the number of significant dimensions, indicating
+ overlap is seen between the may prove more useful in determining a “natural”
+ dimensionality of the data.
+ Ideally, we will derive different higher-level features from the data with
+ our own methods.
+ 
 \end_layout
 
 \begin_layout Section*

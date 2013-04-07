@@ -53,15 +53,20 @@ end
 
 % Now for the initial weight structure... 8, 20, and 2 are the number of
 % neurons on layers 0, 1, and 2.
-W0 = w_init([8 20 2]);
+W0 = w_init([8 30 2]);
 
 % Finally, I have scalar params, of gamma, alpha, maxiter, epoch, and
 % track. These are the learning rate, momentum, obvious, look in your
 % course notes, and how often we record the history. 
 
-scalar_params = [0.001 0.2 30000 1 30];
+scalar_params = [0.0005 0.3 40000 10 30];
 
 [W,W_history] = weight_dynamics(X,D,W0,scalar_params);
+
+
+historian(X,D,W_history)
+
+
 
 
 

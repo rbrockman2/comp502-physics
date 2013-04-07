@@ -12,7 +12,10 @@ Y_test = zeros(out,samples);
 % recording the index of the output layer (counting from 1)
 n = length(W) + 1;
 
-for j = 1:samples
+% **** I'm adding in a fudge factor of only checking *some* samples to make
+% this code run faster. This fudge factor is the ceil part in between the
+% colons that direct how long the for loop runs. 
+for j = 1:ceil(samples/100):samples
      full_signal = signal_gen(X_test(:,j),W);
      Y_test(:,j) = full_signal{n};
 end

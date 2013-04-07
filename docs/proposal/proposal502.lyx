@@ -152,32 +152,41 @@ Our initial objectives are as follows:
 \begin_layout Itemize
 Use Neural Networks to build a classifier for distinguishing two types of
  collision events.
- One type of event indicates the presence of supersymmetric particles (specifica
-lly, a 
+ One class of event indicates the presence of supersymmetric particles (specific
+ally, a 
 \emph on
 stop squark
 \emph default
-), and the other background type does not.
+), and the other class of event represents a troublesome background.
 \end_layout
 
 \begin_layout Itemize
-Our goal is to make a classifier that is better and more efficient than
- models currently being developed and used.
- We will compare our results against two other methods of classification.
+Our goal is to make a classifier that is better and more efficient at separating
+ the signal from the background than models currently being developed and
+ used.
+ We will compare our results against two other methods of classification:
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-The CMS detector group at the LHC currently uses classifies the events using
- a series of cuts on a set of eight derived parameters (discussed below).
+Theoretical particle physicists have come up with a means to separate signal
+ and background using a series of cuts on a set of eight derived parameters
+ (discussed below).
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Dutta"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
 Onkur Sen, a physics senior working with Dr.
  Paul Padley at Bonner Lab here at Rice, is attempting to improve upon this
- with a boosted decision tree algorithm, also using the derived parameters.
- He will provide a standard of comparison against which we can judge our
- performance.
+ with a boosted decision tree algorithm, using the same derived parameters.
+ 
 \end_layout
 
 \end_deeper
@@ -223,7 +232,7 @@ squark on the real data from the CMS detector.
 \end_layout
 
 \begin_layout Subsubsection*
-The Signal Event
+Physics of the Signal Events
 \end_layout
 
 \begin_layout Standard
@@ -297,7 +306,7 @@ The relevant raw numbers from this event are therefore the energy-momentum
 \end_layout
 
 \begin_layout Subsubsection*
-The Background Event
+Physics of the Background Events
 \end_layout
 
 \begin_layout Standard
@@ -334,7 +343,7 @@ Here the initial collision produces two top quarks directly as well as two
 \end_layout
 
 \begin_layout Subsubsection*
-The Derived Scalars
+Derived Scalars - Physics Perspective
 \end_layout
 
 \begin_layout Standard
@@ -406,17 +415,36 @@ J2_ANGLES: The azimuthal angle for the 2nd non-b quark in System B.
 MISSING_E: The missing transverse energy.
 \end_layout
 
+\begin_layout Subsubsection*
+Derived Scalars - Machine Learning Perspective
+\end_layout
+
 \begin_layout Standard
-The figures below show some of the histograms that Onkur has created of
- some of the above features.
+The data we initially plan to classify with an ANN thus consists of vectors
+ of 8 real-valued scalars, 5 of which are energies in GeV (range 0-1000,
+ mostly around 200) and 3 of which are angles in radians (range 0-
+\begin_inset Formula $\pi$
+\end_inset
+
+).
+ Each of the vectors is labelled as signal or background, so we have only
+ 2 classes.
+ Right now we have 2302 signal events and 2847 background events generated
+ by Onkur's scripts, but we can get more.
+ Thus we have enough data to split them 50-50 into a training and test set.
+\end_layout
+
+\begin_layout Standard
+The figures in the section below show the histograms that Onkur has created
+ of some of the above features.
  Angles are in radians, whereas the units for M3, M2, and MISSING_E are
  GeV.
- The scaling for signal and background isn't great -- we will need to make
- our own, better graphs soon.
+ The scaling for signal and background in these graphs isn't great -- we
+ will need to make our own, better graphs soon.
 \end_layout
 
 \begin_layout Subsubsection*
-Use of Artificial Neural Networks
+Use of ANNs
 \end_layout
 
 \begin_layout Standard
@@ -428,8 +456,20 @@ stop
  particle.
  In this we will use our standard, n-layer backpropagation algorithm, beginning
  with 2 layers and adding more if necessary.
- We will have as many input PE's as prominent features, and since we are
- working with a simple classifier, we will have simply 2 output PE's.
+ We will have as many input PE's as prominent features (initially, the 8
+ derived features), and since we are working with a simple classifier, we
+ will simply have 2 output PE's.
+\end_layout
+
+\begin_layout Standard
+Our code still needs to be extended to allow for time-decreasing learning
+ rates.
+ Turning our algorithm into production code usable by CMS will require paralleli
+zing the batch learning functionality.
+\end_layout
+
+\begin_layout Subsubsection*
+Additional Work
 \end_layout
 
 \begin_layout Standard
@@ -647,9 +687,15 @@ The branching ratio for the signal and background events is not as simple
 \end_layout
 
 \begin_layout Itemize
-We have taken the data Onkur gave us and fed it into WEKA as a first step.
- Unfortunately, Onkur's initial data sample doesn't have enough background,
- so the results weren't very good.
+The data from Onkur comes in two forms: raw PYTHIA events which can be transform
+ed into input vectors by a modified version of Onkur's scripts, and sets
+ of eight files, one for each derived parameter.
+ This latter version of the data is more compact and thus has more data
+ points, but is awkward to work with.
+ The raw data files are huge, and the slice of it we have right now doesn't
+ have nearly enough background data points.
+ As a result, initial results from feeding the raw files through Onkur's
+ scripts and into WEKA weren't very good.
  Robert will go grab more data from Onkur on Monday.
 \end_layout
 

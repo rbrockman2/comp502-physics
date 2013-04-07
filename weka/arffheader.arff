@@ -1,0 +1,13 @@
+@relation ppevents
+
+@attribute m3a real
+@attribute m3b real
+@attribute m2a real
+@attribute m2b real
+@attribute angles_b real
+@attribute angles_j1 real
+@attribute angles_j2 real
+@attribute missing_pT real
+@attribute EventType {signal,noise}
+
+@data

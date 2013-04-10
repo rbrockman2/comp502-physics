@@ -1,0 +1,68 @@
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% physics_som_script.m: Use self-organizing map code to find clusters in
+% stop squark signal / top quark background data.
+
+clear classes;
+set(gcf,'color','w');
+
+% Set SOM dimensions.
+somDim1 = 10;
+somDim2 = 10;
+
+% Load physics training, cross-validation, and test data.
+load('../inputdata/noise_train.mat');
+load('../inputdata/noise_cv.mat');
+load('../inputdata/noise_test.mat');
+load('../inputdata/signal_train.mat');
+load('../inputdata/signal_cv.mat');
+load('../inputdata/signal_test.mat');
+
+trainInput = [noise_train;signal_train];
+cvInput = [noise_cv;signal_cv];
+
+% Create output labels for training and cross-validation data.
+signalTrainOutput = zeros(size(signal_train,1),2);
+signalTrainOutput(:,1) = 1;
+noiseTrainOutput = zeros(size(noise_train,1),2);
+noiseTrainOutput(:,2) = 1;
+signalCvOutput = zeros(size(signal_cv,1),2);
+signalCvOutput(:,1) = 1;
+noiseCvOutput = zeros(size(noise_cv,1),2);
+noiseCvOutput(:,2) = 1;
+
+trainOutput = [noiseTrainOutput; signalTrainOutput];
+cvOutput = [noiseCvOutput; signalCvOutput];
+
+
+% Unified training set for SOM
+combineInput = [trainInput;cvInput];
+combineOutput = [trainOutput;cvOutput];
+
+% Load or generate a SOM trained to separate signal from background.
+try 
+    % Attempt to load pre-trained SOM object
+    load('kohonenSom.mat');
+catch err
+    % Create and train new SOM
+    kohonenSom = som(somDim1,somDim2,size(signal_train,2));
+    
+    kohonenSom.trainInputs = combineInput';
+    % Set iterations used for exporting graphs.
+    kohonenSom.iterList = [0 1000 10000 100000 250000 500000];
+    
+    % Train SOM and export graphs for specified iterations.
+    kohonenSom.train();
+    
+    % Save SOM object for reuse later.
+    save('kohonenSom.mat','kohonenSom');
+end
+
+signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([signal_train; signal_cv]');
+noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([noise_train; noise_cv]');
+
+
+
+

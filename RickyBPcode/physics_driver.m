@@ -53,7 +53,7 @@ end
 
 % Now for the initial weight structure... 8, 20, and 2 are the number of
 % neurons on layers 0, 1, and 2.
-W0 = w_init([8 30 2]);
+W0 = w_init([8 30 2],7);
 
 % Finally, I have scalar params, of gamma, alpha, maxiter, epoch, and
 % track. These are the learning rate, momentum, obvious, look in your

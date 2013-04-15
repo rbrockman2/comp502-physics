@@ -34,11 +34,21 @@ def get_best_bjj(bottoms, jets):
     bsplit = [x for x in b.split(' ') if x != '']
     for (j1, j2) in jet_combos:
 
+      print j1
+      print j2
+      wait = raw_input("PRESS ENTER TO CONTINUE.")
+
       # p_x and p_y for both events
       p1, p2 = map(float, splitline(j1)[3:5]), map(float, splitline(j2)[3:5])
 
+      print p1
+      print p2
+      wait = raw_input("PRESS ENTER TO CONTINUE.")
+
       p = map(sum, zip(p1, p2))           # net x,y-momentum
       p_t = sqrt(p[0]**2 + p[1]**2)  # transverse momentum p_t
+      print p_t
+      wait = raw_input("PRESS ENTER TO CONTINUE.")
 
       # keep groups with two highest p_t
       if p_t > first[0]:
@@ -46,6 +56,10 @@ def get_best_bjj(bottoms, jets):
         first = [p_t, b, j1, j2]
       elif p_t > second[0]:
         second = [p_t, b, j1, j2]
+
+      print first
+      print second
+      wait = raw_input("PRESS ENTER TO CONTINUE.")
 
   # limiting case: if only 2 jets, then second will never be assigned
   if second[0] == 0: second = first
@@ -56,7 +70,8 @@ def get_best_bjj(bottoms, jets):
   pe1, pe2 = map(get_pe, first[1:]), map(get_pe, second[1:]) # individual energy-momentum 4-vectors
   print pe1
   print pe2
-  #pause
+  wait = raw_input("PRESS ENTER TO CONTINUE.")
+
   pe_net1, pe_net2 = sumzip(pe1), sumzip(pe2) # net energy-momentum of both groups
 
   if pe_net1 == []: return
@@ -93,11 +108,11 @@ def main():
 
   for i in range(len(events_by_file)):
     (events, bottoms, jets) = events_by_file[i]
-    #print events
-    #%print bottoms
-    #print jets
+    print events
+    print bottoms
+    print jets
 
-    #pause
+    wait = raw_input("PRESS ENTER TO CONTINUE.")
 
     if len(bottoms) < 2:
       # print 'Event %d has too few bottom quarks' % i
@@ -167,8 +182,8 @@ def main():
 
   dlm = ',';
 
-  if not os.path.isdir('OutputDerVars'):
-    os.system('mkdir OutputDerVars')
+  if not os.path.isdir("OutputDerVars"):
+    os.system("mkdir OutputDerVars")
 
 
   filepath = 'OutputDerVars/DV' + argv[1] + '.txt';

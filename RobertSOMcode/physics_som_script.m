@@ -60,12 +60,21 @@ catch err
     save('kohonenSom.mat','kohonenSom');
 end
 
+% Compute number of signal and noise events for each SOM cell.
 signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([signal_train; signal_cv]');
 noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([noise_train; noise_cv]');
 
+% Plot distribution of signal and noise events along with normalized
+% exemplars for each SOM cell.
+exemplarSquaresPlot(signalInputsPerPEMatrix,noiseInputsPerPEMatrix,zeros(kohonenSom.height,kohonenSom.width),kohonenSom,2);
 
+     
+grayscaleSquaresPlot(signalInputsPerPEMatrix,3);
+grayscaleSquaresPlot(noiseInputsPerPEMatrix,4);
+
+
+% Compute SNR gain for each SOM cell.
 trainSNR = size(signal_train,1)/size(noise_train,1);
-
 gainMatrix = zeros(kohonenSom.height,kohonenSom.width);
 for i=1:kohonenSom.height
     for j=1:kohonenSom.width
@@ -75,11 +84,8 @@ for i=1:kohonenSom.height
     end
 end
        
-     
-%grayscaleSquaresPlot(signalInputsPerPEMatrix,2)
-%grayscaleSquaresPlot(noiseInputsPerPEMatrix,3)
-%grayscaleSquaresPlot(gainMatrix,4);
-
+% Plot SNR gain for each SOM cell.
+grayscaleSquaresPlot(gainMatrix,4);
 
 
 
@@ -97,24 +103,25 @@ for k=1:25
     end
     
     
+    cleanSignalTrain = somFilter(minimumGain,gainMatrix,signal_train,kohonenSom);
+    cleanNoiseTrain = somFilter(minimumGain,gainMatrix,noise_train,kohonenSom);
+  %  cleanSignalTrain = [];
+   % for l = 1:size(signal_train,1)
+   %     winningPE = kohonenSom.findWinner(signal_train(l,:));
+   %     if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+   %        % disp(winningPE);
+   %         cleanSignalTrain = [cleanSignalTrain;signal_train(l,:)];
+   %     end
+   % end
     
-    cleanSignalTrain = [];
-    for l = 1:size(signal_train,1)
-        winningPE = kohonenSom.findWinner(signal_train(l,:));
-        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
-           % disp(winningPE);
-            cleanSignalTrain = [cleanSignalTrain;signal_train(l,:)];
-        end
-    end
-    
-    cleanNoiseTrain = [];
-    for l = 1:size(noise_train,1)
-        winningPE = kohonenSom.findWinner(noise_train(l,:));
-        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
-          %  disp(winningPE);
-            cleanNoiseTrain = [cleanNoiseTrain;noise_train(l,:)];
-        end
-    end
+   % cleanNoiseTrain = [];
+   % for l = 1:size(noise_train,1)
+   %     winningPE = kohonenSom.findWinner(noise_train(l,:));
+   %     if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+   %       %  disp(winningPE);
+   %         cleanNoiseTrain = [cleanNoiseTrain;noise_train(l,:)];
+   %     end
+   % end
     
     
     trainGain = (size(cleanSignalTrain,1)/size(cleanNoiseTrain,1))/(size(signal_train,1)/size(noise_train,1));

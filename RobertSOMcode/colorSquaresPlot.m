@@ -20,8 +20,19 @@ plot(1,1,'o'); % dummy dot to initialize graph
 hold on;
 
 redMaxVal = max(max(redMatrix));
+if redMaxVal == 0
+    redMaxVal = 1;
+end
+
 greenMaxVal = max(max(greenMatrix));
+if greenMaxVal == 0
+    greenMaxVal = 1;
+end
+
 blueMaxVal = max(max(blueMatrix));
+if blueMaxVal == 0
+    blueMaxVal = 1;
+end
 
 
 for i=1:size(redMatrix,1)
@@ -41,6 +52,7 @@ hold off;
 axis([0.5 size(redMatrix,1)+0.5 0.5 size(redMatrix,2)+0.5]);
 xlabel('Coordinate 1');
 ylabel('Coordinate 2');
+set(gcf,'color','w');
 
 end
 

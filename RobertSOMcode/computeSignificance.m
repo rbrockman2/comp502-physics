@@ -1,4 +1,4 @@
-function [ significance ] = computeSignificance( initialSignalNum, initialNoiseNum, finalSignalNum, finalNoiseNum )
+function [ significance, finalSignalCount, finalNoiseCount ] = computeSignificance( initialSignalNum, initialNoiseNum, finalSignalNum, finalNoiseNum )
 
 % Cross sections of signal and background in fb 
 initialSignalCrossSection = 5.55;

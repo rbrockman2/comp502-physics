@@ -22,6 +22,7 @@ def get_best_bjj(bottoms, jets):
   """
   Selects two bjj combinations with highest vectorially summed transverse momentum. Returns the combination with a smaller least-squares error from the top quark and W boson.
   """
+  
   if len(jets) < 2: return None, None, None 
   # ------------------------------------------
   # SELECT TWO bjj GROUPS WITH HIGHEST P_T
@@ -35,7 +36,7 @@ def get_best_bjj(bottoms, jets):
     for (j1, j2) in jet_combos:
 
       # p_x and p_y for both events
-      p1, p2 = map(float, splitline(j1)[3:5]), map(float, splitline(j2)[3:5])
+      p1, p2 = map(float, splitline(j1)[3:5]), map(float, splitline(j2)[3:5])   
 
       p = map(sum, zip(p1, p2))           # net x,y-momentum
       p_t = sqrt(p[0]**2 + p[1]**2)  # transverse momentum p_t

@@ -43,17 +43,19 @@ plot(1:8,Xsig_avg,'-bs','linewidth',2)
 hold on
 
 plot(1:8,Xnoi_avg,'-rs','linewidth',2)
-
-boxplot(Xsig_sc','whisker',25,'colors','b')
-boxplot(Xnoi_sc','whisker',25,'colors','r')
-
+set(gca,'XTickLabel',{' '})
+boxplot(Xsig_sc','whisker',25,'colors','b','notch','off')
+set(gca,'XTickLabel',{' '})
+boxplot(Xnoi_sc','whisker',25,'colors','r','notch','off')
+set(gca,'XTickLabel',{' '})
+hold off
 
 
 title('Averages, Maxima, and Minima for the Eight Derived Features', ...
-    'interpreter','latex','fontsize',16)
+    'interpreter','latex','fontsize',18)
 ylabel('Parameter values scaled between 0 and 1',...
-    'interpreter','latex','fontsize',14)
-xlabel('Derived physics parameters','interpreter','latex','fontsize',14)
+    'interpreter','latex','fontsize',16)
+xlabel('Derived physics parameters','interpreter','latex','fontsize',16)
 legend('Signal Event','Noise Event')
 
 

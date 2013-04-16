@@ -1,7 +1,9 @@
 %%function P4(TrainMat, TestMat, NPEs, gamma, epochK)
 
-TrainMat = importdata('iris-train.txt')
-TestMat = importdata('iris-test.txt');
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/noise_train.mat')
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/signal_train.mat')
+TrainMat = [noise_train; signal_train];
+TestMat =
 
 TrainMat(TrainMat==0)=-1;
 TestMat(TestMat==0)=-1;

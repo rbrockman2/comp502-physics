@@ -19,22 +19,33 @@
 % - maxIter - Maximum Iteration Cutoff
 
 
-load('ocelotdata.mat'); 
-load('fruitstill.mat'); 
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/noise_train.mat')
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/signal_train.mat')
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/noise_cv.mat')
+load('/Users/me/Documents/Tower_Repository/comp502-physics/inputdata/signal_cv.mat')
+
+TrainMat = [noise_train; signal_train];
+TestMat = [noise_cv; signal_cv];
 
 
 
-x = MakeBlocks(ocelot);
-imfact = 100;
-x = x/imfact;
+%TrainMat = TrainMat./
+
+MAXTT = max([max(max(TrainMat)); max(max(TestMat))])
+
+%x = MakeBlocks(ocelot);
+x = TrainMat./MAXTT;
+%imfact = 100;
+%x = x%/imfact;
 yt = x;
 
-xT = MakeBlocks(fruitstill);
-xT = xT/imfact;
+%xT = MakeBlocks(fruitstill);
+xT = TestMat./MAXTT;
+%xT = xT/imfact;
 ytT = xT;
 
 colormap(gray)
-`
+
 hLayerVec = 15;
 bias = 1;
 batchSize = 1;%, 1, 10, 200, 400, 800]; 1
@@ -59,9 +70,12 @@ RD.dimIn = dimIn; RD.dimOut = dimOut;
 
 RD.WCRecIters = 0;
 % Calculating Appropriate Scaling Factors
-maxyall = max([max(yt,[],2) max(ytT,[],2)],[],2); minyall = min([min(yt,[],2) min(ytT,[],2)],[],2);
-SDS.ycenter = (maxyall*(scR(2)-scc)+minyall*(scc-scR(1)))./(scR(2)-scR(1));
-SDS.scf = (maxyall-minyall)./(scR(2)-scR(1));
+%max(yt,[],2)
+%max(ytT,[],2)
+%maxyall = max([max(yt,[],2) max(ytT,[],2)],[],2); 
+%minyall = min([min(yt,[],2) min(ytT,[],2)],[],2);
+%SDS.ycenter = (maxyall*(scR(2)-scc)+minyall*(scc-scR(1)))./(scR(2)-scR(1));
+%SDS.scf = (maxyall-minyall)./(scR(2)-scR(1));
 % Finding the Maximum for Decision Testing
 [~,RD.ytdec] = max(yt,[],1); [~,RD.ytTdec] = max(ytT,[],1);
 RD.yt = yt; RD.ytT = ytT;
@@ -85,8 +99,8 @@ if abs(recordStep/batchSize-floor(recordStep/batchSize))>1E-12
 end
 
 % Precalculation of scaling the target output and test output to be within the T.F. Range
-fytS = feval(TF.funName,ScaleDataSet(yt,SDS),TF.params);
-fytTS = feval(TF.funName,ScaleDataSet(ytT,SDS),TF.params);
+fytS = feval(TF.funName,yt,TF.params);
+fytTS = feval(TF.funName,ytT,TF.params);
 
 %-%-%
 
@@ -100,7 +114,7 @@ Res.WCREC = cell(length(RD.WCRecIters),1);
 
 % Starting the Loop / Starting with Recording the initial output
 
-[errVecAll,Res.Train.dataMat(:,:,1),Res.Test.dataMat(:,:,1)] = RecordDataP2(1,0,WC,x,xT,bias,TF,SDS,RD,imfact);
+[errVecAll,Res.Train.dataMat(:,:,1),Res.Test.dataMat(:,:,1)] = RecordDataP2(1,0,WC,x,xT,bias,TF,RD);
             %plot(errVecAll(1,1),errVecAll(1,end))
             %hold on
 Res.Train.errorMat(1,:) = errVecAll(1,:);
@@ -132,7 +146,7 @@ if batchSize==1
         % Data Recording, Test Monitoring, and Convergence Testing
         if mod(iter,recordStep)==0
             recIter = floor(iter/recordStep)+1;
-            [errVecAll,Res.Train.dataMat(:,:,recIter),Res.Test.dataMat(:,:,recIter)] = RecordDataP2(recIter,iter,WC,x,xT,bias,TF,SDS,RD,imfact);
+            [errVecAll,Res.Train.dataMat(:,:,recIter),Res.Test.dataMat(:,:,recIter)] = RecordDataP2(recIter,iter,WC,x,xT,bias,TF,RD,imfact);
             Res.Train.errorMat(recIter,:) = errVecAll(1,:);
             Res.Test.errorMat(recIter,:) = errVecAll(2,:);
             if ConvergenceEvalP2(errVecAll,CE)

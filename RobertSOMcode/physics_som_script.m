@@ -23,7 +23,7 @@ load('../inputdata/signal_test.mat');
 trainInput = [noise_train;signal_train];
 cvInput = [noise_cv;signal_cv];
 
-% Create output labels for training and cross-validation data.
+% Create output labels for training data.
 signalTrainOutput = zeros(size(signal_train,1),2);
 signalTrainOutput(:,1) = 1;
 noiseTrainOutput = zeros(size(noise_train,1),2);
@@ -63,6 +63,104 @@ end
 signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([signal_train; signal_cv]');
 noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix([noise_train; noise_cv]');
 
+
+trainSNR = size(signal_train,1)/size(noise_train,1);
+
+gainMatrix = zeros(kohonenSom.height,kohonenSom.width);
+for i=1:kohonenSom.height
+    for j=1:kohonenSom.width
+        cellSNR = signalInputsPerPEMatrix(i,j)/noiseInputsPerPEMatrix(i,j);
+        
+        gainMatrix(i,j) = cellSNR/trainSNR;
+    end
+end
+       
+     
+%grayscaleSquaresPlot(signalInputsPerPEMatrix,2)
+%grayscaleSquaresPlot(noiseInputsPerPEMatrix,3)
+%grayscaleSquaresPlot(gainMatrix,4);
+
+
+
+
+
+for k=1:25
+    minimumGain = k-1;
+    
+    highGainSOMCellMatrix = zeros(kohonenSom.height,kohonenSom.width);
+    for i=1:kohonenSom.height
+        for j=1:kohonenSom.width
+            if gainMatrix(i,j) >= minimumGain
+                highGainSOMCellMatrix(i,j) = 1;
+            end;
+        end
+    end
+    
+    
+    
+    cleanSignalTrain = [];
+    for l = 1:size(signal_train,1)
+        winningPE = kohonenSom.findWinner(signal_train(l,:));
+        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+           % disp(winningPE);
+            cleanSignalTrain = [cleanSignalTrain;signal_train(l,:)];
+        end
+    end
+    
+    cleanNoiseTrain = [];
+    for l = 1:size(noise_train,1)
+        winningPE = kohonenSom.findWinner(noise_train(l,:));
+        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+          %  disp(winningPE);
+            cleanNoiseTrain = [cleanNoiseTrain;noise_train(l,:)];
+        end
+    end
+    
+    
+    trainGain = (size(cleanSignalTrain,1)/size(cleanNoiseTrain,1))/(size(signal_train,1)/size(noise_train,1));
+    %disp(trainGain);
+    
+    sampleLossRatio = (size(cleanNoiseTrain,1)+size(cleanSignalTrain,1))/(size(signal_train,1)+size(noise_train,1));
+    %disp(sampleLossRatio);
+    
+    approxLBoost = trainGain * sampleLossRatio^0.5;
+    %disp(approxLBoost);
+    
+    grayscaleSquaresPlot(highGainSOMCellMatrix,5);
+    figure(5);
+    colorbar('off');
+    %pause;
+    
+    initialSignalCrossSection = 5.55;
+    initialNoiseCrossSection = 192;
+    cvNoiseNum = size(noise_cv,1);
+    cvSignalNum = size(signal_cv,1);
+    
+    cleanSignalCV = [];
+    for l = 1:cvSignalNum
+        winningPE = kohonenSom.findWinner(signal_cv(l,:));
+        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+            % disp(winningPE);
+            cleanSignalCV = [cleanSignalCV;signal_cv(l,:)];
+        end
+    end
+    
+    cleanNoiseCV = [];
+    for l = 1:cvNoiseNum
+        winningPE = kohonenSom.findWinner(noise_cv(l,:));
+        if highGainSOMCellMatrix(winningPE(1),winningPE(2)) == 1
+            %  disp(winningPE);
+            cleanNoiseCV = [cleanNoiseCV;noise_cv(l,:)];
+        end
+    end
+    
+    significance(k) = computeSignificance(cvSignalNum,cvNoiseNum,size(cleanSignalCV,1),size(cleanNoiseCV,1));
+    disp(significance(k));
+    
+end
+
+figure(6)
+plot(significance);
 
 
 

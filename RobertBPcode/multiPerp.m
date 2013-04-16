@@ -93,6 +93,7 @@ classdef multiPerp < handle % Objects are passed by reference.
             
         end
         
+        %TODO Fixme
         % Compute classification error.
         function [acc] = computeClassificationAccuracy(obj,outputSet, inputSet)           
             sampleNumber = size(outputSet,1);
@@ -110,7 +111,7 @@ classdef multiPerp < handle % Objects are passed by reference.
                 filteredOutput = zeros(size(outputSet,2),1);
                 filteredOutput(highestOutput) = 1;
 
-                target = outputSet(i,:)';
+                target = round(outputSet(i,:)');
                 
                 if filteredOutput == target
                     hits = hits +1;

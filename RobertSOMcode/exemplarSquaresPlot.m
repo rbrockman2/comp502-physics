@@ -20,16 +20,20 @@ function [  ] = exemplarSquaresPlot( redMatrix, greenMatrix, blueMatrix, kohonen
 % Plot colored squares
 colorSquaresPlot( redMatrix, greenMatrix, blueMatrix,figureNum)
 
+maxVal = max(max(max(kohonenSom.weightMatrix)));
+minVal = min(min(min(kohonenSom.weightMatrix)));
+range = maxVal-minVal;
+
 % Plot a little graph of each normalized exemplar in each SOM square.
 hold on;
 for i=1:size(redMatrix,1)
     for j=1:size(redMatrix,2)
         exemplar = zeros(kohonenSom.numInputs,1);
         for k=1:kohonenSom.numInputs
-            exemplar(k) = kohonenSom.weightMatrix(i,j,k)/10;
+            exemplar(k) = (kohonenSom.weightMatrix(i,j,k)-minVal)/range;
         end
         exemplarVarAxis = ((1:kohonenSom.numInputs)-0.5)/kohonenSom.numInputs;       
-        plot(exemplarVarAxis+i-0.5,exemplar/max(exemplar)+j);    
+        plot(exemplarVarAxis+i-0.5,exemplar+j-0.5);    
     end
 end
 hold off;

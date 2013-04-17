@@ -1,0 +1,33 @@
+55_info
+Done. Took 10.520854 secs.
+
+Iterating through 11362 events.
+Done. Took 3.499093 secs.
+
+Total number of events: 11362
+Number of events with enough bottom quarks: 7332
+Number of events with top quark system A: 6973
+Number of events with top quark system B: 4633
+
+
+
+52_info
+Iterating through 7293 events.
+Done. Took 2.199982 secs.
+
+Total number of events: 7293
+Number of events with enough bottom quarks: 4671
+Number of events with top quark system A: 4430
+Number of events with top quark system B: 2962
+
+
+N_info
+Done. Took 38.808984 secs.
+
+Iterating through 29746 events.
+Done. Took 29.537535 secs.
+
+Total number of events: 29746
+Number of events with enough bottom quarks: 18400
+Number of events with top quark system A: 18398
+Number of events with top quark system B: 18292

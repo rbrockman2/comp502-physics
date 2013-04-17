@@ -66,7 +66,7 @@ classdef annReport < handle % Objects are passed by reference
             plot(obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.trainError(1:obj.recordNumber),'-k',...
             obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.testError(1:obj.recordNumber),'-r');
             xlabel(['Epoch Number (Epoch size = ' int2str(obj.epochSize) ', m = ' int2str(obj.reportingInterval) ' epochs)']);
-            axis([obj.reportingInterval,obj.recordNumber*obj.reportingInterval,0,0.2]);
+            xlim([obj.reportingInterval obj.recordNumber*obj.reportingInterval]);
             ylabel('Average RMS Error Over Data Set');
             legend('Training Data Set','Testing Data Set');
             title(['RMS Errors for ' plotTitle ' for Testing and Training Data Sets']);
@@ -81,8 +81,8 @@ classdef annReport < handle % Objects are passed by reference
             figure(2);
             % Note that the epoch number scale starts at the first
             % reporting period.
-            semilogx(obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.classificationAccuracy(1:obj.recordNumber),'-k',...
-            obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.trainAccuracy(1:obj.recordNumber),'-r');
+            semilogx(obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.trainAccuracy(1:obj.recordNumber),'-k',...
+            obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.classificationAccuracy(1:obj.recordNumber),'-r');
             xlabel(['Epoch Number (Epoch size = ' int2str(obj.epochSize) ', m = ' int2str(obj.reportingInterval) ' epochs)']);
             axis([obj.reportingInterval,obj.recordNumber*obj.reportingInterval,0,1]);
             ylabel('Classification Accuracy Over Data Set');

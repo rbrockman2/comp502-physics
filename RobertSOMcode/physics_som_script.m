@@ -16,7 +16,7 @@ somDim2 = 10;
 
 % Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
 % Option 3 uses backpropagation data.
-option = 2;
+option = 1;
 
 % True means generate final output using test data.
 finalOutput = false;

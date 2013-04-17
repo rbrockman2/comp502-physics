@@ -14,15 +14,32 @@ set(gcf,'color','w');
 somDim1 = 10;
 somDim2 = 10;
 
-% Load physics training, cross-validation, and test data.
-load('../inputdata/noise_train.mat');
-load('../inputdata/noise_cv.mat');
-load('../inputdata/noise_test.mat');
-load('../inputdata/signal_train.mat');
-load('../inputdata/signal_cv.mat');
-load('../inputdata/signal_test.mat');
+% Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
+% Option 3 uses backpropagation data.
+option = 2;
 
-trainInput = [noise_train;signal_train];
+% True means generate final output using test data.
+finalOutput = false;
+
+
+if option == 2
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/noise_train.mat');
+    load('../inputdata/noise_cv.mat');
+    load('../inputdata/noise_test.mat');
+    load('../inputdata/signal_train.mat');
+    load('../inputdata/signal_cv.mat');
+    load('../inputdata/signal_test.mat');
+    signalTrain = signal_train;
+    noiseTrain = noise_train;
+    signalCV = signal_cv;
+    noiseCV = noise_cv;
+    signalTest = signal_test;
+    noiseTest = noise_test;
+end
+
+
+trainInput = [noiseTrain;signalTrain];
 
 % Load or generate a SOM trained to separate signal from background.
 try 
@@ -30,7 +47,7 @@ try
     load('kohonenSom.mat');
 catch err
     % Create and train new SOM
-    kohonenSom = som(somDim1,somDim2,size(signal_train,2));
+    kohonenSom = som(somDim1,somDim2,size(signalTrain,2));
     
     kohonenSom.trainInputs = trainInput';
     kohonenSom.maxIter = 2000001;
@@ -45,8 +62,8 @@ catch err
 end
 
 % Compute number of signal and noise events for each SOM cell.
-signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(signal_train');
-noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(noise_train');
+signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(signalTrain');
+noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(noiseTrain');
 
 % Plot distribution of signal and noise events along with normalized
 % exemplars for each SOM cell.
@@ -58,7 +75,7 @@ grayscaleSquaresPlot(noiseInputsPerPEMatrix,4);
 
 
 % Compute SNR gain for each SOM cell.
-trainSNR = size(signal_train,1)/size(noise_train,1);
+trainSNR = size(signalTrain,1)/size(noiseTrain,1);
 gainMatrix = zeros(kohonenSom.height,kohonenSom.width);
 for i=1:kohonenSom.height
     for j=1:kohonenSom.width
@@ -80,8 +97,8 @@ for k=1:25
     
     mySomFilter = somFilter(gainMatrix,kohonenSom,minimumGain);
     
-    filteredSignalCV = mySomFilter.filterEvents(signal_cv);
-    filteredNoiseCV = mySomFilter.filterEvents(noise_cv);
+    filteredSignalCV = mySomFilter.filterEvents(signalCV);
+    filteredNoiseCV = mySomFilter.filterEvents(noiseCV);
      
     significance(k) = computeSignificance(size(filteredSignalCV,1),size(filteredNoiseCV,1));
     if significance(k) > maxSignificance
@@ -95,14 +112,14 @@ end
 % Export filtered training and cross-validation data using optimal SOM
 % filter parameters, yielding highest significance.
 mySomFilter = somFilter(gainMatrix,kohonenSom,optimalGain);
-filteredSignalCV = mySomFilter.filterEvents(signal_cv);
-filteredNoiseCV = mySomFilter.filterEvents(noise_cv);
-filteredSignalTrain = mySomFilter.filterEvents(signal_train);
-filteredNoiseTrain = mySomFilter.filterEvents(noise_train);
-save('../outputdata/SOMfilteredSignalCV.mat','filteredSignalCV');
-save('../outputdata/SOMfilteredNoiseCV.mat','filteredNoiseCV');
-save('../outputdata/SOMfilteredSignalTrain.mat','filteredSignalTrain');
-save('../outputdata/SOMfilteredNoiseTrain.mat','filteredNoiseTrain');
+filteredSignalCV = mySomFilter.filterEvents(signalCV);
+filteredNoiseCV = mySomFilter.filterEvents(noiseCV);
+filteredSignalTrain = mySomFilter.filterEvents(signalTrain);
+filteredNoiseTrain = mySomFilter.filterEvents(noiseTrain);
+save('../outputdata/filteredSignalCV.mat','filteredSignalCV');
+save('../outputdata/filteredNoiseCV.mat','filteredNoiseCV');
+save('../outputdata/filteredSignalTrain.mat','filteredSignalTrain');
+save('../outputdata/filteredNoiseTrain.mat','filteredNoiseTrain');
 
 
 
@@ -115,5 +132,14 @@ title('Signal Significance vs. Minimum SOM Filter Gain');
 disp(['Best Significance: ' num2str(significance(optimalGain+1))]);
 disp(['Optimal SOM Filter Gain: ' num2str(optimalGain)]);
 
+if finalOutput == true
+    filteredSignalTest = mySomFilter.filterEvents(signalTest);
+    filteredNoiseTest = mySomFilter.filterEvents(noiseTest);
+    save('../outputdata/filteredSignalTest.mat','filteredSignalTest');
+    save('../outputdata/filteredNoiseTest.mat','filteredNoiseTest');
+    finalSignificance = computeSignificance(size(filteredSignalTest,1),size(filteredNoiseTest,1));
+    disp(['Test Set Significance: ' num2str(finalSignificance)]);
+end
 
-
+    
+    

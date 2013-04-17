@@ -8,13 +8,13 @@ MS = [M55; M52];
 
 setsizeS = floor(size(MS,1)/3);
 
-noise_train_8 = MN(1:setsizeN,:);
-noise_cv_8 = MN(1+setsizeN:2*setsizeN,:);
-noise_test_8 = MN(1+2*setsizeN:3*setsizeN,:);
+noise_train_8 = MN(1:setsizeN,1:end-1);
+noise_cv_8 = MN(1+setsizeN:2*setsizeN,1:end-1);
+noise_test_8 = MN(1+2*setsizeN:3*setsizeN,1:end-1);
 
-signal_train_8 = MS(1:setsizeS,:);
-signal_cv_8 = MS(1+setsizeS:2*setsizeS,:);
-signal_test_8 = MS(1+2*setsizeS:3*setsizeS,:);
+signal_train_8 = MS(1:setsizeS,1:end-1);
+signal_cv_8 = MS(1+setsizeS:2*setsizeS,1:end-1);
+signal_test_8 = MS(1+2*setsizeS:3*setsizeS,1:end-1);
 
 save('noise_train_8.mat','noise_train_8')
 save('noise_cv_8.mat','noise_cv_8')
@@ -23,10 +23,10 @@ save('signal_train_8.mat','signal_train_8')
 save('signal_cv_8.mat','signal_cv_8')
 save('signal_test_8.mat','signal_test_8')
 
-dlmwrite('noise_train_8.csv',MN(1:setsizeN,:),',')
-dlmwrite('noise_cv_8.csv',MN(1+setsizeN:2*setsizeN,:),',')
-dlmwrite('noise_test_8.csv',MN(1+2*setsizeN:3*setsizeN,:),',')
+dlmwrite('noise_train_8.csv',MN(1:setsizeN,1:end-1),',')
+dlmwrite('noise_cv_8.csv',MN(1+setsizeN:2*setsizeN,1:end-1),',')
+dlmwrite('noise_test_8.csv',MN(1+2*setsizeN:3*setsizeN,1:end-1),',')
 
-dlmwrite('signal_train_8.csv',MS(1:setsizeS,:),',')
-dlmwrite('signal_cv_8.csv',MS(1+setsizeS:2*setsizeS,:),',')
-dlmwrite('signal_test_8.csv',MS(1+2*setsizeS:3*setsizeS,:),',')
+dlmwrite('signal_train_8.csv',MS(1:setsizeS,1:end-1),',')
+dlmwrite('signal_cv_8.csv',MS(1+setsizeS:2*setsizeS,1:end-1),',')
+dlmwrite('signal_test_8.csv',MS(1+2*setsizeS:3*setsizeS,1:end-1),',')

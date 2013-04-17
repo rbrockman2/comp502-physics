@@ -8,67 +8,106 @@
 clear classes;
 set(gcf,'color','w');
 
-% Path to SOM data
-somDataPath = '../outputdata/';
+% Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
+% Option 3 uses SOM filtered data.
+option = 1;
 
-% Path to data processed by Onkur's script
-onkurDataPath = '../inputdata/';
+% True means generate final output using test data.
+finalOutput = false;
 
+if option == 1
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/DS24/noise_train_24.mat');
+    load('../inputdata/DS24/noise_cv_24.mat');
+    load('../inputdata/DS24/noise_test_24.mat');
+    load('../inputdata/DS24/signal_train_24.mat');
+    load('../inputdata/DS24/signal_cv_24.mat');
+    load('../inputdata/DS24/signal_test_24.mat');
+    signalTrainInput = signal_train_24;
+    noiseTrainInput = noise_train_24;
+    signalCVInput = signal_cv_24;
+    noiseCVInput = noise_cv_24;
+    signalTestInput = signal_test_24;
+    noiseTestInput = noise_test_24;
+end
 
-% Load physics training, cross-validation, and test data.
-load('../inputdata/noise_train.mat');
-load('../inputdata/noise_cv.mat');
-load('../inputdata/noise_test.mat');
-load('../inputdata/signal_train.mat');
-load('../inputdata/signal_cv.mat');
-load('../inputdata/signal_test.mat');
+if option == 2
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/DS8/noise_train_8.mat');
+    load('../inputdata/DS8/noise_cv_8.mat');
+    load('../inputdata/DS8/noise_test_8.mat');
+    load('../inputdata/DS8/signal_train_8.mat');
+    load('../inputdata/DS8/signal_cv_8.mat');
+    load('../inputdata/DS8/signal_test_8.mat');
+    signalTrainInput = signal_train_8;
+    noiseTrainInput = noise_train_8;
+    signalCVInput = signal_cv_8;
+    noiseCVInput = noise_cv_8;
+    signalTestInput = signal_test_8;
+    noiseTestInput = noise_test_8;
+end
 
-
-% Load SOM training data.
-load([somDataPath 'SOMfilteredSignalTrain.mat']);
-load([somDataPath 'SOMfilteredNoiseTrain.mat']);
-signalTrainInput = filteredSignalTrain;
-noiseTrainInput = filteredNoiseTrain;
-
-% Load Onkur training data.
-%load([onkurDataPath 'signal_train.mat']);
-%load([onkurDataPath 'noise_train.mat']);
-%signalTrainInput = signal_train;
-%noiseTrainInput = noise_train;
-
-
+if option == 3
+    % Load physics training, cross-validation, and test data.
+    load('../outputdata/filteredNoiseTrain.mat');
+    load('../outputdata/filteredNoiseCV.mat');
+    load('../outputdata/filteredNoiseTest.mat');
+    load('../outputdata/filteredSignalTrain.mat');
+    load('../outputdata/filteredSignalCV.mat');
+    load('../outputdata/filteredSignalTest.mat');
+    signalTrainInput = filteredSignalTrain;
+    noiseTrainInput = filteredNoiseTrain;
+    signalCVInput = filteredSignalCV;
+    noiseCVInput = filteredNoiseCV;
+    signalTestInput = filteredSignalTest;
+    noiseTestInput = filteredNoiseTest;
+end
 
 trainInput = [noiseTrainInput;signalTrainInput];
+CVInput = [noiseCVInput;signalCVInput];
+testInput = [noiseTestInput;signalTestInput];
 
-% Create output labels for training data.
+% DON'T ADD ANYTHING HERE!!!!!!!!!!!
+bpScaler = rescaler(-0.9,0.9,trainInput);
+
+trainInput = bpScaler.scaleForward(trainInput);
+signalTrainInput = bpScaler.scaleForward(signalTrainInput);
+noiseTrainInput = bpScaler.scaleForward(noiseTrainInput);
+signalCVInput = bpScaler.scaleForward(signalCVInput);
+noiseCVInput = bpScaler.scaleForward(noiseCVInput);
+signalTestInput = bpScaler.scaleForward(signalTestInput);
+noiseTestInput = bpScaler.scaleForward(noiseTestInput);
+
+% Create output labels for data.
 signalTrainOutput = zeros(size(signalTrainInput,1),2);
 signalTrainOutput(:,1) = 1;
 noiseTrainOutput = zeros(size(noiseTrainInput,1),2);
 noiseTrainOutput(:,2) = 1;
+signalCVOutput = zeros(size(signalCVInput,1),2);
+signalCVOutput(:,1) = 1;
+noiseCVOutput = zeros(size(noiseCVInput,1),2);
+noiseCVOutput(:,2) = 1;
+signalTestOutput = zeros(size(signalTestInput,1),2);
+signalTestOutput(:,1) = 1;
+noiseTestOutput = zeros(size(noiseTestInput,1),2);
+noiseTestOutput(:,2) = 1;
 
 trainOutput = [noiseTrainOutput;signalTrainOutput];
+CVOutput = [noiseCVOutput;signalCVOutput];
+testOutput = [noiseTestOutput;signalTestOutput];
 
-
-%testInput = irisTest(:,1:4);
-%testOutput = irisTest(:,5:7);
-
+% DON'T ADD ANYTHING HERE!!!!!!!!!!!
 
 % Map outputs to (-0.9,0.9)
-%trainScaledOutput = (trainOutput - 5.5)/(4.5/0.9);
-%testScaledOutput = (testOutput - 5.5)/(4.5/0.9);
+bpOutScaler = rescaler(-0.9,0.9,trainOutput);
 
-bpScaler = rescaler(-0.9,0.9,trainInput);
+trainOutput = bpOutScaler.scaleForward(trainOutput);
+CVOutput = bpOutScaler.scaleForward(CVOutput);
+testOutput = bpOutScaler.scaleForward(testOutput);
 
-trainScaledInput = bpScaler.scaleForward(trainInput);
-trainScaledOutput = trainOutput;% scaler(0,0.9,trainOutput);
-
-%testScaledOutput = testOutput;
-
-
-
-% Load or generate a SOM trained to separate signal from background.
+% Load or generate a BP network trained to separate signal from background.
 try 
-    % Attempt to load pre-trained SOM object
+    % Attempt to load pre-trained BP object
     load('mp.mat');
 catch err
     % Create perceptron object and initialize with widths of input buffer,
@@ -83,11 +122,13 @@ catch err
     mp.reportingInterval = 1000; % m = 1000 epochs
     mp.epochSize = 1; % Set equal to the number of training samples.
     
-    mp.trainOutput = trainScaledOutput;
-    mp.trainInput = trainScaledInput;
-    %  mp.testOutput = testScaledOutput;
-    %  mp.testInput = testInput;
+    mp.trainOutput = trainOutput;
+    mp.trainInput = trainInput;
+    mp.testOutput = CVOutput;
+    mp.testInput = CVInput;
     
+    mp.classifierTargets = [-0.9 0.9; 0.9 -0.9];
+
     % Train the multilayer perceptron.
     mp.train();
     
@@ -98,50 +139,15 @@ end
 mp.report.plotSampleError('bp_training.eps','Data filtered by SOM');
 mp.report.plotClassificationError('bp_classification.eps','Data filtered by SOM');
 
-
-% Load SOM cross-validation data.
-load([somDataPath 'SOMfilteredSignalCV.mat']);
-load([somDataPath 'SOMfilteredNoiseCV.mat']);
-signalCVInput = filteredSignalCV;
-noiseCVInput = filteredNoiseCV;
-
-% Load Onkur cross-validation data.
-%load([onkurDataPath 'signal_cv.mat']);
-%load([onkurDataPath 'noise_cv.mat']);
-%signalCVInput = signal_cv;
-%noiseCVInput = noise_cv;
-
-
-cvNoiseNum = size(noise_cv,1);
-cvSignalNum = size(signal_cv,1);
-
-% Scale CV data using same basis as training data.
-signalCVScaledInput = bpScaler.scaleForward(signalCVInput);
-noiseCVScaledInput = bpScaler.scaleForward(noiseCVInput);
-
 optimalBias = 0;
 maxSignificance = 0;
 for k=1:100
     bias = 0.01 * (k-1);
     
-    truePositive =0;
-    for i=1:size(signalCVScaledInput,1)
-        bpOutput = mp.mpOutput(signalCVScaledInput(i,:)');
-        if bpOutput(1) > bpOutput(2) + bias
-            truePositive = truePositive +1;
-        end
-    end
-    
-    falsePositive =0;
-    for i=1:size(noiseCVScaledInput,1)
-        bpOutput = mp.mpOutput(noiseCVScaledInput(i,:)');
-        if bpOutput(1) > bpOutput(2) + bias
-            falsePositive = falsePositive +1;
-        end
-    end
-%     disp(truePositive);
-%     disp(falsePositive);
-    [significance(k) sigCount noiseCount ] = computeSignificance(cvSignalNum,cvNoiseNum,truePositive,falsePositive);
+    [truePositive,~] = signal_counter(mp,signalCVInput,bias)
+    [falsePositive,~] = signal_counter(mp,noiseCVInput,bias)
+
+    [significance(k) sigCount noiseCount ] = computeSignificance(truePositive,falsePositive);
     
     if significance(k) > maxSignificance && significance(k) ~= Inf
         optimalBias = bias;
@@ -149,7 +155,6 @@ for k=1:100
         bestSigCount = sigCount;
         bestNoiseCount = noiseCount;
     end
-    
 end
 figure(3)
 plot((0:99)./100,significance);
@@ -161,27 +166,21 @@ disp(['Optimal bias: ' num2str(optimalBias)]);
 disp(['Corresponding signal count: ' num2str(bestSigCount)]);
 disp(['Corresponding noise count: ' num2str(bestNoiseCount)]);
 
+[truePositive,bpSignalOutput] = signal_counter(mp,signalCVInput,optimalBias)
+[falsePositive,bpNoiseOutput] = signal_counter(mp,noiseCVInput,optimalBias)
 
-truePositive =0;
-bpSignalOutput = zeros(size(signalCVScaledInput,1),2);
-for i=1:size(signalCVScaledInput,1)
-    bpSignalOutput(i,:) = mp.mpOutput(signalCVScaledInput(i,:)');
-    if bpSignalOutput(i,1) > bpSignalOutput(i,2) + optimalBias
-        truePositive = truePositive +1;
-    end
-end
-
-
-bpNoiseOutput = zeros(size(signalCVScaledInput,1),2);
-falsePositive =0;
-for i=1:size(noiseCVScaledInput,1)
-    bpNoiseOutput(i,:) = mp.mpOutput(noiseCVScaledInput(i,:)');
-    if bpNoiseOutput(i,1) > bpNoiseOutput(i,2) + optimalBias
-        falsePositive = falsePositive +1;
-    end
-end
 figure(4);
 plot(bpSignalOutput(:,1),bpSignalOutput(:,2),'xk',...
     bpNoiseOutput(:,1),bpNoiseOutput(:,2),'xr');
 axis([0 1 0 1]);
 
+if finalOutput == 1
+    [truePositive,~] = signal_counter(mp,signalTestInput,optimalBias)
+    [falsePositive,~] = signal_counter(mp,noiseTestInput,optimalBias)
+
+    [bestSignificance sigCount noiseCount ] = computeSignificance(truePositive,falsePositive);
+
+    disp(['Best significance on Test Set: ' num2str(bestSignificance)]);
+    disp(['Corresponding signal count: ' num2str(sigCount)]);
+    disp(['Corresponding noise count: ' num2str(noiseCount)]);
+end

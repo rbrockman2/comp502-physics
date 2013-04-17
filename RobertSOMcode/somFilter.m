@@ -7,9 +7,6 @@ classdef somFilter
         gainMatrix;
         minimumGain;
         
-        initialSignalCrossSection = 5.55;
-        initialNoiseCrossSection = 192;
-        
         highGainSOMCellMatrix;
         debug=0;
     end

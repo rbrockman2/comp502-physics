@@ -5,6 +5,8 @@
 % physics_som_script.m: Use self-organizing map code to find clusters in
 % stop squark signal / top quark background data.
 
+% DO:  Set scaling so that variance is the same.
+
 clear classes;
 set(gcf,'color','w');
 
@@ -67,7 +69,7 @@ for i=1:kohonenSom.height
 end
        
 % Plot SNR gain for each SOM cell.
-grayscaleSquaresPlot(gainMatrix,4);
+grayscaleSquaresPlot(gainMatrix,5);
 
 % Determine minimum gain associated with maximum significance on
 % cross-validation set.
@@ -81,7 +83,7 @@ for k=1:25
     filteredSignalCV = mySomFilter.filterEvents(signal_cv);
     filteredNoiseCV = mySomFilter.filterEvents(noise_cv);
      
-    significance(k) = computeSignificance(size(signal_cv,1),size(noise_cv,1),size(filteredSignalCV,1),size(filteredNoiseCV,1));
+    significance(k) = computeSignificance(size(filteredSignalCV,1),size(filteredNoiseCV,1));
     if significance(k) > maxSignificance
         maxSignificance = significance(k);
         optimalGain = minimumGain;

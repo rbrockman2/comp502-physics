@@ -28,6 +28,8 @@ for k = 1:kohonenSom.numInputs
     scaledWeightMatrix(:,:,k) = (kohonenSom.weightMatrix(:,:,k) - minVal)./(maxVal-minVal);
 end
 
+% TODO:  Fix scaling, match it to SOM input scaling.
+
 % Plot a little graph of each normalized exemplar in each SOM square.
 hold on;
 for i=1:size(redMatrix,1)

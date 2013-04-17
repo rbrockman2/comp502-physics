@@ -226,7 +226,7 @@ def main():
   #filepath = 'OutputDerVars/DV' + argv[1] + '.txt';
   dlm = ',';
   f = open('N.txt', 'w')
-  sn = 1; # 1- signal, 0- noise
+  sn = 0; # 1- signal, 0- noise
   for i in range(0,len(M3A)):
     f.write(str(OUT1[i]))
     f.write(dlm)

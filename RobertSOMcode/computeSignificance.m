@@ -1,4 +1,5 @@
 function [ significance, finalSignalCount, finalNoiseCount ] = computeSignificance(finalSignalNum, finalNoiseNum )
+% TODO: Remove hard-coded values.
 
 % Cross sections of signal and background in fb for m_stop = 400 GeV and
 % m_neutralino = 100 GeV.
@@ -16,8 +17,8 @@ initialNoiseNum=29746 /3;
 finalSignalCrossSection =  finalSignalNum / initialSignalNum * initialSignalCrossSection;
 finalNoiseCrossSection = finalNoiseNum / initialNoiseNum * initialNoiseCrossSection;
 
-disp(finalSignalCrossSection);
-disp(finalNoiseCrossSection);
+%disp(finalSignalCrossSection);
+%disp(finalNoiseCrossSection);
 
 finalSignalCount = finalSignalCrossSection * luminosity;
 finalNoiseCount = finalNoiseCrossSection * luminosity;

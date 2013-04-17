@@ -8,6 +8,7 @@ classdef som < handle % Objects are passed by reference.
     properties
         weightMatrix
     
+    
         height
         width             
         numInputs % Input Dimensionality
@@ -19,6 +20,8 @@ classdef som < handle % Objects are passed by reference.
         
         reportingInterval = 100; % number of iterations per reporting interval
 
+        trainingInfoPath = '';
+        
         iterList;
         trainInputs;
     end
@@ -184,7 +187,7 @@ classdef som < handle % Objects are passed by reference.
                 if obj.inList(iter) == 1
                   %  pause;
                     set(gcf,'color','w');       
-                    export_fig(['hw8_2_' int2str(iter) '.eps'],1);
+                    export_fig([obj.trainingInfoPath 'som_train_' int2str(iter) '.eps'],1);
                 end
                 
                 obj.somLearn(obj.reportingInterval);

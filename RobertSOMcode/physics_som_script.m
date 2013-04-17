@@ -21,21 +21,36 @@ option = 2;
 % True means generate final output using test data.
 finalOutput = false;
 
+if option == 1
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/DS24/noise_train_24.mat');
+    load('../inputdata/DS24/noise_cv_24.mat');
+    load('../inputdata/DS24/noise_test_24.mat');
+    load('../inputdata/DS24/signal_train_24.mat');
+    load('../inputdata/DS24/signal_cv_24.mat');
+    load('../inputdata/DS24/signal_test_24.mat');
+    signalTrain = signal_train_24;
+    noiseTrain = noise_train_24;
+    signalCV = signal_cv_24;
+    noiseCV = noise_cv_24;
+    signalTest = signal_test_24;
+    noiseTest = noise_test_24;
+end
 
 if option == 2
     % Load physics training, cross-validation, and test data.
-    load('../inputdata/noise_train.mat');
-    load('../inputdata/noise_cv.mat');
-    load('../inputdata/noise_test.mat');
-    load('../inputdata/signal_train.mat');
-    load('../inputdata/signal_cv.mat');
-    load('../inputdata/signal_test.mat');
-    signalTrain = signal_train;
-    noiseTrain = noise_train;
-    signalCV = signal_cv;
-    noiseCV = noise_cv;
-    signalTest = signal_test;
-    noiseTest = noise_test;
+    load('../inputdata/DS8/noise_train_8.mat');
+    load('../inputdata/DS8/noise_cv_8.mat');
+    load('../inputdata/DS8/noise_test_8.mat');
+    load('../inputdata/DS8/signal_train_8.mat');
+    load('../inputdata/DS8/signal_cv_8.mat');
+    load('../inputdata/DS8/signal_test_8.mat');
+    signalTrain = signal_train_8;
+    noiseTrain = noise_train_8;
+    signalCV = signal_cv_8;
+    noiseCV = noise_cv_8;
+    signalTest = signal_test_8;
+    noiseTest = noise_test_8;
 end
 
 

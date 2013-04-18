@@ -119,7 +119,7 @@ Spring 2013
 \end_inset
 
 
-\begin_inset VSpace 20pheight%
+\begin_inset VSpace 12pheight%
 \end_inset
 
 
@@ -294,6 +294,13 @@ Signal vs.
 \end_inset
 
 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Dutta"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -396,11 +403,11 @@ Find the Free Energy of these states
 
 \end_deeper
 \begin_layout Subsection
-Locally Scaled Diffusion Mapping
+Significance
 \end_layout
 
 \begin_layout BeginFrame
-Locally Scaled Diffusion Mapping 
+Significance
 \end_layout
 
 \begin_layout Standard
@@ -752,7 +759,7 @@ Bibliography
 \begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
-bibfiles "/Users/me/Documents/Mendeley.Bibtex.Bibs/Research"
+bibfiles "../elec502proj"
 options "achemso"
 
 \end_inset

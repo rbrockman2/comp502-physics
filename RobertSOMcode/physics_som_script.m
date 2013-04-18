@@ -94,9 +94,9 @@ catch err
     kohonenSom = som(somDim1,somDim2,size(signalTrain,2));
     
     kohonenSom.trainInputs = trainInput';
-    kohonenSom.maxIter = 2000001;
+    kohonenSom.maxIter = 750001;
     % Set iterations used for exporting graphs.
-    kohonenSom.iterList = [0 1000 10000 100000 250000 500000 1000000 1500000 2000000];
+    kohonenSom.iterList = [0 1000 10000 100000 250000 750000];
     
     kohonenSom.trainingInfoPath = trainingInfoPath;
     

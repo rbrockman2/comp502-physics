@@ -3,10 +3,10 @@
 
 %function boxplot_gen
 
-datapath = '../inputdata/';
+datapath = '../inputdata/DS8/';
 
-signal_train = load([datapath 'signal_train.mat']);
-noise_train = load([datapath 'noise_train.mat']);
+signal_train = load([datapath 'signal_train_8.mat']);
+noise_train = load([datapath 'noise_train_8.mat']);
 
 % Now I just need to take the data and put it into matrix form, instead of
 % having it in the cell form as before. 
@@ -33,13 +33,13 @@ end
 plot(1:8,Xsig_avg,'-bs','linewidth',2); hold on
 set(gca,'XTick',[])
 plot(1:8,Xnoi_avg,'-rs','linewidth',2)
-<<<<<<< HEAD
+hold on
 set(gca,'XTickLabel',{' '})
 boxplot(Xsig_sc','whisker',25,'colors','b','notch','off')
 set(gca,'XTickLabel',{' '})
 boxplot(Xnoi_sc','whisker',25,'colors','r','notch','off')
 set(gca,'XTickLabel',{' '})
-hold off
+hold on
 
 
 title('Averages, Maxima, and Minima for the Eight Derived Features', ...
@@ -47,7 +47,7 @@ title('Averages, Maxima, and Minima for the Eight Derived Features', ...
 ylabel('Parameter values scaled between 0 and 1',...
     'interpreter','latex','fontsize',16)
 xlabel('Derived physics parameters','interpreter','latex','fontsize',16)
-=======
+
 set(gca,'XTick',[])
 
 xaxlabels1 = {'','','','','','','',''};
@@ -55,12 +55,13 @@ xaxlabels2 = {'m3a','m3b','m2a','m2b','angb','angj1','angj2','mspt'};
 boxplot(Xsig_sc','whisker',25,'colors','b','labels',xaxlabels1)
 boxplot(Xnoi_sc','whisker',25,'colors','r','labels',xaxlabels2)
 
+hold off
 title('Statistics for the Derived Features', ...
     'interpreter','latex','fontsize',18)
 ylabel('Parameter Values (Scaling: [0,1] )',...
     'interpreter','latex','fontsize',16)
 xlabel('Derived Parameters','interpreter','latex','fontsize',16)
->>>>>>> b35960a36917f509cd70c2f26f1909d46ed5251b
-legend('Signal Event','Noise Event')
+
+legend('Signal Event','Noise Event','fontsize',12)
 
 set(gcf,'color','w')

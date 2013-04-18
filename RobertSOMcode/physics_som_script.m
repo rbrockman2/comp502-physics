@@ -67,7 +67,6 @@ if scaling == 1
     signalTrain(:,5:7)  = signalTrain(:,5:7) * 360 / pi;
     noiseTrain(:,5:7)  = noiseTrain(:,5:7) * 360 / pi;
     signalCV(:,5:7)  = signalCV(:,5:7) * 360 / pi;
-    signalTrain(:,5:7)  = signalTrain(:,5:7) * 360 / pi;
     noiseCV(:,5:7)  = noiseCV(:,5:7) * 360 / pi;
     signalTest(:,5:7)  = signalTest(:,5:7) * 360 / pi;
     noiseTest(:,5:7)  = noiseTest(:,5:7) * 360 / pi;
@@ -171,7 +170,6 @@ if scaling == 1
     signalTrain(:,5:7)  = signalTrain(:,5:7) * pi/ 360;
     noiseTrain(:,5:7)  = noiseTrain(:,5:7) * pi/ 360;
     signalCV(:,5:7)  = signalCV(:,5:7) * pi/ 360;
-    signalTrain(:,5:7)  = signalTrain(:,5:7) * pi/ 360;
     noiseCV(:,5:7)  = noiseCV(:,5:7) * pi/ 360;
     signalTest(:,5:7)  = signalTest(:,5:7) * pi/ 360;
     noiseTest(:,5:7)  = noiseTest(:,5:7) * pi/ 360;

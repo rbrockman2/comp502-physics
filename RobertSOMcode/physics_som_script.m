@@ -194,7 +194,7 @@ save('../outputdata/filteredNoiseTest.mat','filteredNoiseTest');
 figure(6)
 plot(0:24,significance);
 xlabel('Minimum SOM Cell Gain');
-ylabel('Significance (\sigma)');
+ylabel('Signal Significance','interpreter','latex','fontsize',16)
 title('Signal Significance vs. Minimum SOM Filter Gain');
 
 disp(['Best Significance: ' num2str(significance(optimalGain+1))]);

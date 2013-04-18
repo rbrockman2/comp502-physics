@@ -92,7 +92,7 @@ Finding the
 \emph on
 stop squark
 \emph default
- using Self-Oragnizing Maps
+ using Self-Organizing Maps
 \end_layout
 
 \begin_layout Author
@@ -282,91 +282,31 @@ We started with
 \end_layout
 
 \begin_layout BeginFrame
-Truncated Hemoglobin System
+Signal vs.
+ Noise
 \end_layout
 
-\begin_layout ColumnsTopAligned
-
-\end_layout
-
-\begin_deeper
-\begin_layout Column
-5cm
-\end_layout
-
-\begin_layout Itemize
-Contains:
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-Protein and Heme
-\end_layout
-
-\begin_layout Itemize
-
-\color black
-NO
-\end_layout
-
-\begin_layout Itemize
-
-\color black
-O
-\begin_inset Formula $_{2}$
-\end_inset
-
-
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Interested in the path of Oxygen capture and release
-\end_layout
-
-\begin_layout Itemize
-Molecular Dynamics simulation trajectory produced 
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-This semester I worked on analyzing a Truncated Hemoglobin system using
- Diffusion Maps.
- Truncated Hemoglobin is frequently studied because it is a simpler system
- to analyze than Hemoglobin, but it has similar function and characteristics
- in animals to hemoglobin in humans.
-\end_layout
-
-\begin_layout Plain Layout
-The system analyzed contains a protein structure attached to a heme group,
- Nitric Oxide, and Oxygen.
- There is uncertainty over whether truncated hemoglobin is responsible for
- helping the tuberculosis bacteria (Mycobacterium tuberculosis) overcome
- nitric oxide toxicity through conversion to nitrate.
-\end_layout
-
-\begin_layout Plain Layout
-Analyzed the path by which the Oxygen Molecule is captured and released
- from the Truncated Hemoglobin.
-\end_layout
-
-\begin_layout Plain Layout
-A molecular dynamics simulation of the trajectory was conducted by our collabora
-tors in Europe.
- at T=300K
-\end_layout
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename figures/Schematic_Signal_Noise.png
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Column
-5cm
+\begin_layout Standard
+\begin_inset Formula $j:=$
+\end_inset
+
+
 \end_layout
 
-\end_deeper
-\begin_layout ColumnsTopAligned
+\begin_layout Standard
+\begin_inset Formula $b:=$
+\end_inset
+
 
 \end_layout
 

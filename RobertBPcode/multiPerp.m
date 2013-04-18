@@ -25,7 +25,17 @@ classdef multiPerp < handle % Objects are passed by reference.
         testInput; % test set inputs
         testOutput; % test set outputs
         
+        classifierTargets; % prototype output values for each class
+        
         errorThreshold = 0.05; % Training stops once the error reaches this level.
+        
+        
+        signalTrainInput;
+        noiseTrainInput;
+        signalCVInput;
+        noiseCVInput;
+        bias = 1.1;
+        
         
         debug = 0;
     end
@@ -93,32 +103,48 @@ classdef multiPerp < handle % Objects are passed by reference.
             
         end
         
-        %TODO Fixme
+        %TODO DocumentMe
         % Compute classification error.
-        function [acc] = computeClassificationAccuracy(obj,outputSet, inputSet)           
-            sampleNumber = size(outputSet,1);
+        function [acc] = computeClassificationAccuracy(obj,targetOutput, inputSet)           
+            sampleNumber = size(targetOutput,1);
             hits = 0;
-                         
-            for i=1:size(outputSet,1)             
-                output = mpOutput(obj,inputSet(i,:)');
+            
+            actualOutput = zeros(size(targetOutput,1),size(targetOutput,2));
+            correctClass = zeros(size(targetOutput,1),1);
+            closestClass = zeros(size(targetOutput,1),1);
+            
+            for i=1:size(targetOutput,1)             
+ 
                 
-                highestOutput = 1;
-                for j=1:size(output)
-                    if output(j) > output(highestOutput)
-                        highestOutput = j;
+                correctClass(i) = 1;
+                correctClassDistance = Inf;
+                for k = 1:size(obj.classifierTargets,1);
+                    outputPrototypeDistance = norm(targetOutput(i,:)-obj.classifierTargets(k,:));
+                    
+                    if outputPrototypeDistance < correctClassDistance; 
+                        correctClassDistance = outputPrototypeDistance;
+                        correctClass(i) = k;
                     end
                 end
-                filteredOutput = zeros(size(outputSet,2),1);
-                filteredOutput(highestOutput) = 1;
-
-                target = round(outputSet(i,:)');
                 
-                if filteredOutput == target
+                actualOutput(i,:) = mpOutput(obj,inputSet(i,:)');
+                closestClass(i) = 1;
+                closestClassDistance = Inf;
+                for k = 1:size(obj.classifierTargets,1);
+                    outputDistance = norm(actualOutput(i,:)-obj.classifierTargets(k,:));
+                                       
+                    if outputDistance < closestClassDistance; 
+                        closestClassDistance = outputDistance;
+                        closestClass(i) = k;
+                    end
+                end
+                
+                if closestClass(i) == correctClass(i)
                     hits = hits +1;
                 end
+               
             end      
            acc = hits/sampleNumber;
-            
         end
         
         
@@ -186,9 +212,20 @@ classdef multiPerp < handle % Objects are passed by reference.
         function [error] = bpRecall(obj)
             trainError = obj.computeRmsError(obj.trainOutput, obj.trainInput); 
             testError = obj.computeRmsError(obj.testOutput, obj.testInput);                        
-            trainAccuracy = obj.computeClassificationAccuracy(obj.trainOutput, obj.trainInput);                        
-            testAccuracy = obj.computeClassificationAccuracy(obj.testOutput, obj.testInput);
-            obj.report.addRecord(trainError,testError,trainAccuracy,testAccuracy);         
+           % trainAccuracy = obj.computeClassificationAccuracy(obj.trainOutput, obj.trainInput);                        
+           % testAccuracy = obj.computeClassificationAccuracy(obj.testOutput, obj.testInput);
+           
+            
+            tp = signal_counter(obj,obj.signalTrainInput,obj.bias);
+            fp = signal_counter(obj,obj.noiseTrainInput,obj.bias);         
+            trainAccuracy = computeSignificance(tp,fp);
+            
+            tp = signal_counter(obj,obj.signalCVInput,obj.bias);
+            fp = signal_counter(obj,obj.noiseCVInput,obj.bias);         
+            testAccuracy = computeSignificance(tp,fp);
+            
+            
+            obj.report.addRecord(trainError,testError,trainAccuracy,testAccuracy);  
             
             % Training error usable as stopping criterion.
             error = trainError; 

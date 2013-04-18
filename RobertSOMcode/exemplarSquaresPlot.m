@@ -20,15 +20,9 @@ function [  ] = exemplarSquaresPlot( redMatrix, greenMatrix, blueMatrix, kohonen
 % Plot colored squares
 colorSquaresPlot( redMatrix, greenMatrix, blueMatrix,figureNum)
 
-% Scale SOM weights to 0-1, normalized for each input parameter.
-scaledWeightMatrix = zeros(kohonenSom.height,kohonenSom.width,kohonenSom.numInputs);
-for k = 1:kohonenSom.numInputs
-    maxVal = max(max(kohonenSom.weightMatrix(:,:,k)));
-    minVal = min(min(kohonenSom.weightMatrix(:,:,k)));
-    scaledWeightMatrix(:,:,k) = (kohonenSom.weightMatrix(:,:,k) - minVal)./(maxVal-minVal);
-end
-
-% TODO:  Fix scaling, match it to SOM input scaling.
+maxVal = max(max(max(kohonenSom.weightMatrix)));
+minVal = min(min(min(kohonenSom.weightMatrix)));
+range = maxVal-minVal;
 
 % Plot a little graph of each normalized exemplar in each SOM square.
 hold on;
@@ -36,10 +30,10 @@ for i=1:size(redMatrix,1)
     for j=1:size(redMatrix,2)
         exemplar = zeros(kohonenSom.numInputs,1);
         for k=1:kohonenSom.numInputs
-            exemplar(k) = scaledWeightMatrix(i,j,k);
+            exemplar(k) = (kohonenSom.weightMatrix(i,j,k)-minVal)/range;
         end
         exemplarVarAxis = ((1:kohonenSom.numInputs)-0.5)/kohonenSom.numInputs;       
-        plot(exemplarVarAxis+i-0.5,exemplar/max(exemplar)+j-0.5);    
+        plot(exemplarVarAxis+i-0.5,exemplar+j-0.5);    
     end
 end
 hold off;

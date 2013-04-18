@@ -10,7 +10,7 @@ set(gcf,'color','w');
 
 % Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
 % Option 3 uses SOM 8-D filtered data.
-option = 2;
+option = 3;
 
 % True means generate final output using test data.
 finalOutput = false;

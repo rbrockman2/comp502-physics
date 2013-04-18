@@ -18,11 +18,11 @@ outputDataPath = '../outputdata/';
 
 % Scaling = 0 has no scaling.  Scaling = 1 scales up angles to degrees.
 % Scaling = 2 centers parameter mean on zero with stddev 1.
-scaling = 0;
+scaling = 1;
 
 % Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
 % Option 3 uses backpropagation data.
-option = 1;
+option = 2;
 
 % True means generate final output using test data.
 finalOutput = false;

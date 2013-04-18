@@ -10,7 +10,7 @@ set(gcf,'color','w');
 
 % Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
 % Option 3 uses SOM 8-D filtered data.
-option = 3;
+option = 2;
 
 % True means generate final output using test data.
 finalOutput = false;
@@ -23,6 +23,7 @@ if option == 1
     load('../inputdata/DS24/signal_train_24.mat');
     load('../inputdata/DS24/signal_cv_24.mat');
     load('../inputdata/DS24/signal_test_24.mat');
+    bias = 0;
     signalTrainInput = signal_train_24;
     noiseTrainInput = noise_train_24;
     signalCVInput = signal_cv_24;
@@ -39,6 +40,7 @@ if option == 2
     load('../inputdata/DS8/signal_train_8.mat');
     load('../inputdata/DS8/signal_cv_8.mat');
     load('../inputdata/DS8/signal_test_8.mat');
+    bias = 0.57;
     signalTrainInput = signal_train_8;
     noiseTrainInput = noise_train_8;
     signalCVInput = signal_cv_8;
@@ -55,6 +57,7 @@ if option == 3
     load('../outputdata/filteredSignalTrain_8_degreeScaled.mat');
     load('../outputdata/filteredSignalCV_8_degreeScaled.mat');
     load('../outputdata/filteredSignalTest_8_degreeScaled.mat');
+    bias = 1.1;
     signalTrainInput = filteredSignalTrain;
     noiseTrainInput = filteredNoiseTrain;
     signalCVInput = filteredSignalCV;
@@ -130,7 +133,7 @@ catch err
     
     % Set training parameters.
     mp.maxEpochs = 100000; % maximum number of input samples (not epochs)
-    mp.initialLearningRate = 0.001;
+    mp.initialLearningRate = 0.01;
     mp.momentum = 0.3;
     mp.reportingInterval = 1000; % m = 1000 epochs
     mp.epochSize = 1; % Set equal to the number of training samples.
@@ -146,6 +149,8 @@ catch err
     mp.noiseTrainInput = noiseTrainInput;
     mp.signalCVInput = signalCVInput;
     mp.noiseCVInput = noiseCVInput;
+    
+    mp.bias = bias;
   
     % Train the multilayer perceptron.
     mp.train();

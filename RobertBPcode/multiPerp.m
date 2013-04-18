@@ -114,8 +114,7 @@ classdef multiPerp < handle % Objects are passed by reference.
             closestClass = zeros(size(targetOutput,1),1);
             
             for i=1:size(targetOutput,1)             
- 
-                
+               
                 correctClass(i) = 1;
                 correctClassDistance = Inf;
                 for k = 1:size(obj.classifierTargets,1);
@@ -187,6 +186,7 @@ classdef multiPerp < handle % Objects are passed by reference.
                 % Process one epoch.
                 while (iter < obj.epochSize)
                     iter = iter + 1; % Every training data point is an iteration.
+                    obj.initialLearningRate = obj.initialLearningRate * (1 - 0.0001);
                     
                     % Check for training set wraparound.
                     obj.trainOffset = mod(obj.trainOffset,size(obj.trainOutput,1));
@@ -219,6 +219,8 @@ classdef multiPerp < handle % Objects are passed by reference.
             tp = signal_counter(obj,obj.signalTrainInput,obj.bias);
             fp = signal_counter(obj,obj.noiseTrainInput,obj.bias);         
             trainAccuracy = computeSignificance(tp,fp);
+            disp(fp);
+            disp(obj.initialLearningRate);
             
             tp = signal_counter(obj,obj.signalCVInput,obj.bias);
             fp = signal_counter(obj,obj.noiseCVInput,obj.bias);         

@@ -85,9 +85,9 @@ classdef annReport < handle % Objects are passed by reference
             obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.classificationAccuracy(1:obj.recordNumber),'-r');
             xlabel(['Epoch Number (Epoch size = ' int2str(obj.epochSize) ', m = ' int2str(obj.reportingInterval) ' epochs)']);
             xlim([obj.reportingInterval,obj.recordNumber*obj.reportingInterval]);
-            ylabel('Classification Accuracy Over Data Set');
-            legend('Training Data Set','Testing Data Set','Location','SouthWest');
-            title(['Classification Accuracy for ' plotTitle ' for Testing and Training Data Sets']);
+            ylabel('Significance');
+            legend('Training Data Set','Cross-Validation Data Set','Location','SouthWest');
+            title(['Significance Training History for Training and Cross-Validation Data Sets']);
             set(gcf,'color','w');
             export_fig(outputfile,2);
         end      

@@ -351,11 +351,22 @@ Need sim.
 
 \begin_layout Block
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
-{Aim}
+{
+\end_layout
+
+\end_inset
+
+Aim
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \end_inset
@@ -364,9 +375,10 @@ status open
 \end_layout
 
 \begin_layout Block
-Improve on the results in the paper by 
+Improve on the results in the paper by Dutta, et al.
+ 
 \begin_inset CommandInset citation
-LatexCommand citet
+LatexCommand citep
 key ":Dutta2012"
 
 \end_inset
@@ -485,14 +497,62 @@ Previously attempted strategy:
 \end_layout
 
 \begin_layout Itemize
-Thresholds on derived variables as outlined in 
+Thresholds on derived variables as outlined in Dutta, et al.
+ 
 \begin_inset CommandInset citation
-LatexCommand citet
+LatexCommand citep
 key ":Dutta2012"
 
 \end_inset
 
  
+\end_layout
+
+\begin_layout Subsection
+Significance
+\end_layout
+
+\begin_layout BeginFrame
+Significance: A Filter Comparison Metric
+\end_layout
+
+\begin_layout Itemize
+A measure of discovery confidence based on a certain number of high energy
+ particle collisions
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mbox{significance}=\frac{N_{\mbox{Signal}}}{\sqrt{N_{\mbox{Background}}}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $N_{\mbox{Signal}}:=$
+\end_inset
+
+ number of signal events that come through the filter
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $N_{\mbox{Background}}:=$
+\end_inset
+
+ number of noise events that come through the filter
+\end_layout
+
+\begin_layout Itemize
+Used commonly in physics 
+\end_layout
+
+\begin_layout Itemize
+Every significance measure in the Results Section is based on a standard
+ number of collisions
 \end_layout
 
 \begin_layout Subsection
@@ -511,7 +571,7 @@ Back-Propagation Filter Settings
 
 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -937,7 +997,7 @@ Significance =
 
 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -954,7 +1014,7 @@ status open
 \end_layout
 
 \begin_layout BeginFrame
-Self-Organizing Map Filter
+Self-Organizing Map Filter Settings
 \end_layout
 
 \begin_layout Standard
@@ -965,7 +1025,7 @@ Self-Organizing Map Filter
 
 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1164,7 +1224,7 @@ Stopping criteria
 \begin_inset Text
 
 \begin_layout Plain Layout
-learning step > 100,000
+learning step > 750,000
 \end_layout
 
 \end_inset
@@ -1332,7 +1392,7 @@ Significance =
 
 
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1346,53 +1406,6 @@ status open
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-Significance
-\end_layout
-
-\begin_layout BeginFrame
-Significance: A Filter Comparison Metric
-\end_layout
-
-\begin_layout Itemize
-A measure of discovery confidence based on a certain number of high energy
- particle collisions
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-\mbox{significance}=\frac{N_{\mbox{Signal}}}{\sqrt{N_{\mbox{Background}}}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $N_{\mbox{Signal}}:=$
-\end_inset
-
- number of signal events that come through the filter
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $N_{\mbox{Background}}:=$
-\end_inset
-
- number of noise events that come through the filter
-\end_layout
-
-\begin_layout Itemize
-Used commonly in physics 
-\end_layout
-
-\begin_layout Itemize
-Every significance measure in the Results Section is based on a standard
- number of collisions
 \end_layout
 
 \begin_layout Section
@@ -1476,7 +1489,7 @@ SOM followed by BP for Derived Variables
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/RobertBPcode/SigTrainHist_BP_SOM_8.eps
+	filename ../../RobertBPcode/SigTrainHist_BP_SOM_8.eps
 	height 75pheight%
 
 \end_inset
@@ -1496,7 +1509,7 @@ SOM Signal and Noise Density plots with weights
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/RobertSOMcode/exemplarSquaresPlot_24.eps
+	filename ../../RobertSOMcode/exemplarSquaresPlot_24.eps
 	height 60pheight%
 
 \end_inset
@@ -1523,7 +1536,7 @@ SOM Normalized Signal to Noise Ratios
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename /Users/me/Documents/Tower_Repository/comp502-physics/RobertSOMcode/gain_24.eps
+	filename ../../RobertSOMcode/gain_24.eps
 	height 70pheight%
 
 \end_inset
@@ -1727,7 +1740,7 @@ Self-Organizing Map for Derived Variables
 \family roman
 \size large
 \color red
-Self-Organizing Map and Back-Propagation
+SOM then Back-Propagation
 \end_layout
 
 \end_inset
@@ -1845,7 +1858,7 @@ References
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 bibfiles "../elec502proj"
-options "achemso"
+options "IEEEtran"
 
 \end_inset
 

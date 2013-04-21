@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf340
 {\fonttbl\f0\fnil\fcharset0 Cambria;}
 {\colortbl;\red255\green255\blue255;}
-\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\margl1440\margr1440\vieww16520\viewh12100\viewkind0
 \deftab720
 \pard\pardeftab720\ri720\sl360\slmult1
 
@@ -64,7 +64,43 @@ Our data and their corresponding target values may suffer from this sort of nonl
 \pard\pardeftab720\fi720\ri720\sl360\slmult1
 \cf0 \ulnone As seen on the second of our results slides, we trained an SOM to find clusters of data points in the input space. We first did with 8-D prototypes attached to each lattice PE. Here the eight dimensions correspond to the physicists\'92 derived parameters. After the network was trained, we used three visualization techniques. [By the way, Robert, I never asked you how you did this! The colored SOM pictures are gorgeous.] We counted the number of signal and noise events that mapped to each PE, and we added red or green light, respectively, to each SOM cell accordingly. Thus a bright yellow square has many signal and noise events mapping to that lattice element (as happens in the top-left corner of the derived SOM), and a dark square has few events mapping to it. \
 Finally, we also superimposed the prototype on each square (visualized as a blue line, or function). These visualizations combine to give a sense of how the prototypes settled in the input space, and which signal and noise events flow into a given prototype. \
-\pard\pardeftab720\ri720\sl360\slmult1
-\cf0 \
+The SOM for the derived variables converged as desired. There are a cluster of lattice cells that have a high concentration of signal events (visualized in red), and much the remaining space is solidly noise (visualized in green). The yellow square in the top-left corner we interpret as an anomaly, but one which in no way detracts from our results. \
+The colored plot, however, does not have all of the information that we desire. For example, it leaves out quantitative information on the gain (or SNR: signal to noise ratio) of each PE. To understand the how much the filter truly improved our results, we normalize the SNR to the original SNR prior to any filtering. In the best case (results slide p. 3), we see a lattice cell with a gain of over 20, which is desirable. \
+As a theoretical aside, it is important that the gain number be large, like 20, because we necessarily sacrifice significance when we cut out many of the input data points. Thus, we need a very large concentration of signal in a given lattice cell to compensate for this loss. \
 \
+[I skip over results slide 4, because I still do not feel that I have anything convincing to say about this slide. I\'92m interested in looking over what is filled in here, as I\'92ll analyze all the results much more seriously as we move to publication.]\
+\
+On results slide 5, we repeat the SOM analysis, except this time we use the raw data. Thus, our prototypes extend into 24-D space, corresponding to the 6 particle jets each with their accompanying 4-vector of energy and momentum. We see the increase in input space visually because the blue lines in each cell (representing the prototypes) have more \'93wiggles\'94. This is because they are connecting 24 points, instead of merely 8. \
+Superficially, these results look very similar to the results from the second results slide. In both cases we have a concentration of signal that is desirable. However, the gain is much weaker, as the sixth slide reveals. Where before our gain extended past 20, here it barely reaches 5. This means that our filter is non-trivial. It 
+\i does 
+\i0 succeed in identifying clusters in input space corresponding to signal, but it fails to do this so effectively as to make up for the massive amount of data-points cut out by the filter. \
+\
+[Results slide 7 is still puzzling to me. It still feels funny that the physicists\'92 method seems to do worse than nothing at all. This suggests that the physicists must at least be aiming for something other than significance as we concieve it, surely? \
+Also, in the pursuit of publication, we should be very clear on how confident we are in our results, and what results ought to have large error bars around them. For example, if the SOM followed by BP was the best merely by chance, we ought to be very clear about this.]\
+\
+\pard\pardeftab720\ri720\sl360\slmult1
+\cf0 \ul \ulc0 General Analysis\
+\
+\pard\pardeftab720\ri720\sl360\slmult1
+\cf0 \ulnone 	Ideally, we would want the SOM to perform as well or better on the raw parameters as on the derived parameters. There are several reasons why this might not be the case initially, and why more sophisticated analysis could fix the problem. Firstly, the physicists presumably already have a good intuition for what sorts of variables are the \'93definining\'94 variables of a system. So by using their derived variables, we are leveraging their intuition. If we make the very reasonable assumption that their intuition is effective, then we reduce the amount of work the SOM must do in finding underlying patterns, because much of the work has already been done. \
+	But of course, in the bigger picture, we are concerned with improving machines\'92 capacity to do data analysis 
+\i on their own
+\i0 , without the help of physicists\'92 intuition. So we should consider a possibility for the relative lack of effectiveness of working with the raw data. \
+	A primary cause of this lack of effectiveness is that the derived data includes 3 angles and already normalizes momentum vectors in a certain direction. The raw data does not \'85 [I could say more on this, but with Justin\'92s work in protein folding, I know this is already very much his area of expertise. So I\'92ll stop now and let him take this part entirely]\
+\
+\pard\pardeftab720\ri720\sl360\slmult1
+\cf0 \ul \ulc0 Next Steps\
+\pard\pardeftab720\fi720\ri720\sl360\slmult1
+\cf0 \ulnone \
+In addition to what has already been suggested, perhaps we could also train a neural network to optimize for significance 
+\i directly
+\i0 , instead of only indirectly via the sum-of-squared-errors objective function? Perhaps we could rig an SOM to also take into account some supervised learning techniques, and thus automatically favor clusters of high significance in its algorithm?\
+I confess that I do not understand the details of Robert\'92s backprop code, the extent to which it increases classification accuracy, and exactly how this classification improvement maps into improved significance. Upon understanding this better, I would also have more to say on alternative neural networks with significance as an objective function already baked in. \
+\
+\pard\pardeftab720\ri720\sl360\slmult1
+\cf0 \ul \ulc0 Additional Notes\
+\pard\pardeftab720\ri720\sl360\slmult1
+\cf0 \ulnone 	\
+	What happened to the double boxplot image that showed the statistical distributions of the input data? Was it decided that the image was good, but that it simply did not make the cut for the presentation, or was there some flaw in it that I am unaware of?\
+	If it turns out that the image was good, we could include it plus a similar image that works with the 24 scalar inputs for the raw data. [If we decide to do this, let me know, and I\'92ll generalize the code I wrote for the 8-D case].  \
 }

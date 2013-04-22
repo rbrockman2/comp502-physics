@@ -772,16 +772,19 @@ The data we initially plan to classify with an ANN thus consists of vectors
 \end_layout
 
 \begin_layout Standard
-Figure 
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figures/derived_stats_plot_8.eps
+	width 75text%
+
+\end_inset
+
 
 \end_layout
 
@@ -806,6 +809,40 @@ Distribution of Scaled 8-D Input Values
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figures/raw_stats_plot_24.eps
+	width 75text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Distribution of Scaled 24-D Raw Data Values
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Classification Basics
 \end_layout
@@ -820,7 +857,16 @@ The complexities of particle physics reduce (at least for the purposes of
  and had signal correspond to [1;0] and noise to [0;1] (appropriately scaled).
  Thus our network performs a nonlinear mapping from 8-D (or 24-D if we are
  using the raw data) space to 2-D space.
- 
+ From the simulated data, with the help of Onkur's code, we were able to
+ create a length 24 vector of raw data for each signal or background event
+ and a length 8 vector of derived variables from the raw data 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Dutta2012"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -839,72 +885,22 @@ Naturally, upon training our network, all outputs will not fall perfectly
 \end_layout
 
 \begin_layout Standard
-Earlier classification methods, such as cuts (i.e., thresholding) used by
- the physicists, are more simple and primitive than neural network methods.
+Earlier classification methods, such as cuts (i.e., thresholding as outlined
+ in Dutta, et al.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Dutta2012"
+
+\end_inset
+
+ ) used by the physicists, are more simple and primitive than neural network
+ methods.
  An alternative technique, used by Onkur Sen for his physics senior thesis,
  is boosted decision trees.
  In each case, the ultimate goal is improving significance, because more
- significance is literally money, because it translates into less time needed
- at the LHC to achieve an equal certainty of results.
- 
-\end_layout
-
-\begin_layout Standard
-From the simulated data, with the help of Onkur's code, we were able to
- create:
-\end_layout
-
-\begin_layout Itemize
-a length 24 vector of raw data for each signal or background event 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-being analyzed here
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-pxpypzE
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-a length 8 vector of derived variables from the raw data 
-\begin_inset CommandInset citation
-LatexCommand citep
-key ":Dutta2012"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Previously attempted strategy:
-\end_layout
-
-\begin_layout Itemize
-Thresholds on derived variables as outlined in Dutta, et al.
- 
-\begin_inset CommandInset citation
-LatexCommand citep
-key ":Dutta2012"
-
-\end_inset
-
+ significance is extremely valuable because it translates into less time
+ needed at the LHC to achieve an equal certainty of results.
  
 \end_layout
 
@@ -2563,6 +2559,23 @@ Two-Stage BP-SOM Classifier Results
 \end_layout
 
 \begin_layout Standard
+Although our attempt to implement a two stage classifier by applying backpropaga
+tion to the output of the SOM filter did seem to increase the significance
+ compared to SOM or backpropagation alone, this may have been a result of
+ chance.
+ As seen in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:SOM-followed-by"
+
+\end_inset
+
+, the neural network did not train well, with no meaningful increase in
+ the significance on the training data.
+ 
+\end_layout
+
+\begin_layout Standard
 \align center
 \begin_inset Float figure
 wide false
@@ -2584,6 +2597,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:SOM-followed-by"
+
+\end_inset
+
 SOM followed by BP for Derived Variables
 \end_layout
 

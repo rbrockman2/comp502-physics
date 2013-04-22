@@ -2681,8 +2681,11 @@ The analysis begins with a reworking of the error measure in the limit of
  Bishops analysis considers the conditional averages of the target data
  (conditional here refers to conditional on the given input pattern).
  With some simplifications (described on p.
- 202), he achieves the following terse but powerful result: y_k(x,w*) =
- <t_k x>.
+ 202), he achieves the following terse but powerful result: 
+\begin_inset Formula $y_{k}(x,w*)=\langle t_{k}\mid x\rangle$
+\end_inset
+
+.
  Put into English, this states that the output of the neural network corresponds
  to the conditional average of the target outputs.
  Thus, the trained network is essentially returning the conditional mean
@@ -2699,10 +2702,14 @@ The analysis begins with a reworking of the error measure in the limit of
 The relevance of this theory to our project is that certain types of nonlinearit
 y in the distribution of the data will necessarily be ignored by a learning
  machine trained to minimize a sum of squares error.
- If, for example, <t_k | x> is an expected value that few (if any) input
- patterns actually map to (just as the expected value of a die roll is the
- impossible 3.5), then the network will try to find structure in the conditional
- average where such structure is not actually present.
+ If, for example, 
+\begin_inset Formula $\langle t_{k}\mid x\rangle$
+\end_inset
+
+ is an expected value that few (if any) input patterns actually map to (just
+ as the expected value of a die roll is the impossible 3.5), then the network
+ will try to find structure in the conditional average where such structure
+ is not actually present.
  
 \end_layout
 

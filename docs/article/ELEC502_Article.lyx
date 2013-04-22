@@ -461,14 +461,14 @@ Our goal is to make a classifier that is better and more efficient at separating
  the signal from the background than models currently being developed and
  used.
  Another method being developed by theoretical particle physicists is a
- method using a series of cuts on a set of eight derived parameters.
- 
+ method using a series of cuts on a set of eight derived parameters 
 \begin_inset CommandInset citation
 LatexCommand citep
 key ":Dutta2012"
 
 \end_inset
 
+.
  The efficiency of the classifiers will be compared by measuring the discovery
  significance per unit beam luminosity.
 \end_layout
@@ -761,7 +761,7 @@ The data for we plan to classify with an ANN thus consists of vectors of
  cross-validation, and test sets.
  The cross-validation sets are used to determine the correct filter strength
  for the SOMs, as well as to tune the output cutoff threshold for signal
- and noise for backpropagation.
+ and noise for back-propagation.
 \end_layout
 
 \begin_layout Standard
@@ -937,8 +937,8 @@ Our goal is to maximize the statistical significance, defined as the ratio
  of signal to the square root of background events.
  We do this through obtaining a larger ratio of signal to noise than would
  otherwise be possible without machine learning techniques.
- We attack the problem with a Multilayer Perceptron trained through Backpropagat
-ion, as well as with an SOM.
+ We attack the problem with a Multilayer Perceptron trained through back-propaga
+tion, as well as with an SOM.
  In the case of the SOM, prototypes attached to the lattice neurons naturally
  find clusters of patterns in the input space.
  Upon completing the SOM training, we can see which lattice neurons become
@@ -950,6 +950,21 @@ ion, as well as with an SOM.
 
 \begin_layout Subsection
 Multilayer Perceptron with Back-Propagation
+\end_layout
+
+\begin_layout Standard
+We used the parameters shown in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Back-Propagation-Filter-Settings"
+
+\end_inset
+
+ for training back-propagation .
+ Experimenting with more layers and/or more hidden units has not yielded
+ improved results so far.
+ These parameters were also used for the back-propagation stage of our two-stage
+ filter.
 \end_layout
 
 \begin_layout Standard
@@ -1414,6 +1429,12 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Back-Propagation-Filter-Settings"
+
+\end_inset
+
 Back-Propagation Filter Settings
 \end_layout
 
@@ -1433,8 +1454,14 @@ SOM
 
 \begin_layout Standard
 \align left
-As seen on the second of our results slides, we trained an SOM to find clusters
- of data points in the input space.
+As seen on the second of our results slides, we trained an SOM
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Kohonen88"
+
+\end_inset
+
+ to find clusters of data points in the input space.
  We first did with 8-D prototypes attached to each lattice PE.
  Here the eight dimensions correspond to the physicists’ derived parameters.
  After the network was trained, we used three visualization techniques.
@@ -1890,7 +1917,7 @@ reference "tab:Table-of-the"
  classify enough events as signal to still generate substantial significance.
  The same holds true for the SOM trained on the derived variables.
  In the richest lattice PE, the gain was sufficiently high to compensate
- for the other events in the input space which were cut out.
+ for the other events in the input space, which were cut out.
  Finally, combining different learning paradigms gives us the best results
  of all.
  We achieve these results by feeding the signal-rich input space (as determined
@@ -2531,10 +2558,10 @@ Two-Stage BP-SOM Classifier Results
 \end_layout
 
 \begin_layout Standard
-Although our attempt to implement a two stage classifier by applying backpropaga
-tion to the output of the SOM filter did seem to increase the significance
- compared to SOM or backpropagation alone, this may have been a result of
- chance.
+Although our attempt to implement a two stage classifier by applying back-propag
+ation to the output of the SOM filter did seem to increase the significance
+ compared to SOM or back-propagation alone, this may have been a result
+ of chance.
  As seen in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2627,7 +2654,7 @@ Finally, we would like to develop an alternative learning machine that would
 
 \begin_layout Section
 \start_of_appendix
-Theoretical Limitations of Backpropagation
+Theoretical Limitations of Back-propagation
 \end_layout
 
 \begin_layout Standard
@@ -2640,7 +2667,7 @@ key ":Bishop1995"
 \end_inset
 
 , we know that there are theoretical limitations on the usefulness of a
- multilayer perceptron trained with backpropagation.
+ multilayer perceptron trained with back-propagation.
  These considerations help explain the limited usefulness of the MLP in
  classifying the particle collision data.
  

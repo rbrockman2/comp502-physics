@@ -960,7 +960,14 @@ reference "tab:Back-Propagation-Filter-Settings"
 
 \end_inset
 
- for training back-propagation .
+ for training back-propagation 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Fyfe2000"
+
+\end_inset
+
+.
  Experimenting with more layers and/or more hidden units has not yielded
  improved results so far.
  These parameters were also used for the back-propagation stage of our two-stage

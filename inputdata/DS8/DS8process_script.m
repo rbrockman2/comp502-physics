@@ -1,3 +1,9 @@
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% DS8process_script.m
+%
 M55 = load('Table_100t400_8TeV-55.txt');
 M52 = load('Table_100t400_8TeV-52.txt');
 MN = load('Table_ttjALL.txt');

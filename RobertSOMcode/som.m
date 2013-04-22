@@ -1,6 +1,6 @@
-% Robert Brockman II - S00285133
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
 % COMP 502 Spring 2013
-% Homework 8
+% Final Project
 %
 % som.m - Class definition for a self-organizing map.
 %

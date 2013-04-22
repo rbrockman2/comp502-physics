@@ -1,6 +1,6 @@
-% Robert Brockman II - S00285133
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
 % COMP 502 Spring 2013
-% Homework 5
+% Final Project
 %
 % annReport.m - Report object generated when training an ANN.
 %

@@ -1,3 +1,9 @@
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% computeSignificance.m - Calculate the significance of a stop squark physics result.
+%
 function [ significance, finalSignalCount, finalNoiseCount ] = computeSignificance(finalSignalNum, finalNoiseNum )
 % TODO: Remove hard-coded values.
 

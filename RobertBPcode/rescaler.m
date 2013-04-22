@@ -1,3 +1,9 @@
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% rescaler.m - Class for rescaling sets of data samples in a consistent way.
+%
 classdef rescaler < handle % Objects are passed by reference. 
     
     properties
@@ -41,14 +47,9 @@ classdef rescaler < handle % Objects are passed by reference.
                 
                 scaledDataPoints(:,j) = (scaledDataPoints(:,j) .* (targetRange/2)) + targetMidpoint;
                 
-                
-            end
-            
-            
-            
+            end       
         end
-        
-        
+    
     end
     
 end

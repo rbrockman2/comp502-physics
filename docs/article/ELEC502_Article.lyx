@@ -157,6 +157,116 @@ ELEC 502, Spring 2013
 \end_layout
 
 \begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+Table of Work
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Percentage
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Robert
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Justin
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ricky
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status collapsed
 
@@ -177,7 +287,6 @@ status open
 
 \begin_layout Plain Layout
 
-%Settings
 \end_layout
 
 \begin_layout Plain Layout
@@ -296,8 +405,85 @@ pagenumbering{arabic}
 Statement of Problem
 \end_layout
 
-\begin_layout Subsection
-Introduction
+\begin_layout Standard
+With the discovery of the Higgs-like particle at the Large Hadron Collider
+ (LHC), all of the important predictions of the Standard Model of particle
+ physics have been tested.
+ The focus of particle physics has now shifted to the search for new particles
+ associated with extensions of the Standard Model.
+ One such search involves the search for a particular particle associated
+ with an extension to the Standard Model known as supersymmetry (SUSY).
+ In particular, physicists at the Compact Muon Solenoid (CMS) detector group
+ at the LHC are interested in verifying a SUSY model that predicts specific
+ p-p collision events which generate the super-symmetric partner to the
+ top quark known as the 
+\emph on
+stop
+\emph default
+ squark.
+ Verification of these models requires an efficient classifier capable of
+ separating signal 
+\emph on
+stop
+\emph default
+ squark events from background events.
+ More efficient classifiers allow discoveries to be made with fewer events,
+ less expensive beam time, and thus lower cost.
+ 
+\end_layout
+
+\begin_layout Section
+Objectives
+\end_layout
+
+\begin_layout Standard
+Our initial objectives are as follows:
+\end_layout
+
+\begin_layout Itemize
+Use Neural Networks to build a classifier for distinguishing two types of
+ collision events.
+ One class of event indicates the presence of supersymmetric particles (specific
+ally, a 
+\emph on
+stop squark
+\emph default
+), and the other class of event represents a troublesome background.
+\end_layout
+
+\begin_layout Itemize
+Our goal is to make a classifier that is better and more efficient at separating
+ the signal from the background than models currently being developed and
+ used.
+ We will compare our results against two other methods of classification:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Theoretical particle physicists have come up with a means to separate signal
+ and background using a series of cuts on a set of eight derived parameters
+ (discussed below).
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key ":Dutta"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Onkur Sen, a physics senior working with Dr.
+ Paul Padley at Bonner Lab here at Rice, is attempting to improve upon this
+ with a boosted decision tree algorithm, using the same derived parameters.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+The efficiency of the classifiers will be compared by measuring the discovery
+ significance per unit beam luminosity.
 \end_layout
 
 \begin_layout Subsubsection
@@ -384,10 +570,6 @@ key ":Dutta2012"
 , working in parallel with Onkur Sen, who is attacking the same problem
  using boosted decision trees.
  
-\end_layout
-
-\begin_layout Section
-Objectives
 \end_layout
 
 \begin_layout Subsection
@@ -1395,6 +1577,421 @@ Self-Organizing Map Filter Settings
 Technical Approach
 \end_layout
 
+\begin_layout Standard
+Our classifier will be trained on simulated data generated by PYTHIA, a
+ particle physics simulator which can be tuned to represent the appropriate
+ SUSY model.
+ If the SUSY theory under consideration is correct, a classifier which works
+ on the simulated data will detect the 
+\emph on
+stop 
+\emph default
+squark on the real data from the CMS detector.
+ 
+\end_layout
+
+\begin_layout Subsection
+Physics of the Signal Events
+\end_layout
+
+\begin_layout Standard
+The event type we are trying to detect is shown below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+p+p & \rightarrow\tilde{t}+\bar{\tilde{t}}\\
+\tilde{t} & \rightarrow t+\widetilde{\chi}_{1}^{0}\\
+\bar{\tilde{t}} & \rightarrow\bar{t}+\widetilde{\chi}_{1}^{0}\\
+t & \rightarrow b+j+j\\
+\bar{t} & \rightarrow\bar{b}+j+j
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here components of two protons colliding roughly head on down the accelerator
+ beam axis combine to form two 
+\emph on
+stop squarks
+\emph default
+, represented by 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\tilde{t}$
+\end_inset
+
+ and 
+\begin_inset Formula $\bar{\tilde{t}}$
+\end_inset
+
+.
+ (The bar on top represents an antiparticle.) The stop squarks decay into
+ top quarks and neutralinos.
+ Neutralinos escape the experiment undetected, carrying missing energy with
+ them.
+ In the signal event, the top quarks then decay into three other quarks,
+ one of which is a b quark and the other two are lighter quarks from the
+ 1st two particle generations.
+ The quarks form recognizable jets of particles in the detector, and the
+ jets from the b quarks can be differentiated from the others.
+ Thus the detector will see this event as 6 jets, 2 of which are from b
+ quarks, and there will be considerable missing transverse energy caused
+ by the escape of the neutralinos.
+ (The total transverse momentum is the vector sum of all of the momenta
+ perpendicular to the beam axis of the detected particles .
+ If it is not zero, momentum conservation demands that there be undetected
+ particles which have escaped with the missing momentum.)
+\end_layout
+
+\begin_layout Standard
+The relevant raw numbers from this event are therefore the energy-momentum
+ four-vectors for the four normal jets (j) and two b jets (b), for a total
+ of 24 scalars per event.
+\end_layout
+
+\begin_layout Subsection
+Physics of the Background Events
+\end_layout
+
+\begin_layout Standard
+Unfortunately, there is a troublesome background event that looks very similar
+ to the signal event, but contains no interesting new physics:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+p+p & \rightarrow t+\bar{t}+j+j\\
+t & \rightarrow b+j+j\\
+\bar{t} & \rightarrow\bar{b}+W^{-}\\
+W^{-} & \rightarrow e^{-}+\nu_{e}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here the initial collision produces two top quarks directly as well as two
+ low-mass quarks which form jets.
+ One of the top quarks decays into a b quark and two low mass quarks as
+ in the signal event.
+ The other top quark decays into a b quark, a lepton (electron or muon)
+ and a neutrino which carries off missing energy.
+ The big problem is that lepton detection is not perfect, and when the lepton
+ is missed, this event also appears as 6 jets, 2 of which are from b quarks,
+ and with missing transverse energy, just like the signal event.
+ Our task is to study the four-vectors of the 6 jets in each of the event
+ types to see if we can distinguish them.
+\end_layout
+
+\begin_layout Subsection
+Derived Scalars - Physics Perspective
+\end_layout
+
+\begin_layout Standard
+Dutta, et.
+ al.
+ have derived 8 scalar features to help in identifying the background event.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key ":Dutta"
+
+\end_inset
+
+.
+ The basic strategy comes from the observation that two of the jets from
+ low-mass quarks (hereafter 
+\emph on
+j
+\emph default
+) emerge directly from the initial collision in the background event, whereas
+ in the signal event the 
+\emph on
+j
+\emph default
+'s are paired and each pair is associated with a b quark.
+ Thus, the patterns in the angles between jets and the energy of the jet
+ groupings should be different.
+ 
+\end_layout
+
+\begin_layout Standard
+Python scripts provided by Onkur Sen compute the scalar features for each
+ event and output them in a format which we can feed into a classifier.
+ The scripts group the quark jets from each event into two groups of 3 jets
+ each, referred to as System A and System B.
+ Each group contains one b quark and 2 normal jets.
+ The scripts then compute the following:
+\end_layout
+
+\begin_layout Itemize
+M3 : The invariant mass of all three jets in a group.
+ This scalar does not change with reference frame, and should correspond
+ to the rest mass of the top quark that spawned the jets.
+ This is computed for both groups, so we have M3A and M3B.
+\end_layout
+
+\begin_layout Itemize
+M2: The invariant mass of the two non-b jets in a group.
+ This should correspond to the difference between the top and b quark rest
+ masses in the signal case.
+ In the background case, two non-b jets emerged from the initial collision
+ and thus there should be less correlation.
+ This is computed for both groups, so we have M2A and M2B.
+\end_layout
+
+\begin_layout Itemize
+B_ANGLES: The azimuthal angle for the b quark in System B.
+\end_layout
+
+\begin_layout Itemize
+J1_ANGLES: The azimuthal angle for the 1st non-b quark in System B.
+\end_layout
+
+\begin_layout Itemize
+J2_ANGLES: The azimuthal angle for the 2nd non-b quark in System B.
+\end_layout
+
+\begin_layout Itemize
+MISSING_E: The missing transverse energy.
+\end_layout
+
+\begin_layout Subsection
+Derived Scalars - Machine Learning Perspective
+\end_layout
+
+\begin_layout Standard
+The data we initially plan to classify with an ANN thus consists of vectors
+ of 8 real-valued scalars, 5 of which are energies in GeV (range 0-1000,
+ mostly around 200) and 3 of which are angles in radians (range 0-
+\begin_inset Formula $\pi$
+\end_inset
+
+).
+ Each of the vectors is labelled as signal or background, so we have only
+ 2 classes.
+ Right now we have 2302 signal events and 2847 background events generated
+ by Onkur's scripts, but we can get more.
+ Thus we have enough data to split them 50-50 into a training and test set.
+\end_layout
+
+\begin_layout Standard
+The figures in the section below show the histograms that Onkur has created
+ of some of the above features.
+ Angles are in radians, whereas the units for M3, M2, and MISSING_E are
+ GeV.
+ The scaling for signal and background in these graphs isn't great -- we
+ will need to make our own, better graphs soon.
+\end_layout
+
+\begin_layout Subsection
+Classification Basics
+\end_layout
+
+\begin_layout Standard
+The complexities of particle physics reduce (at least for the purposes of
+ machine learning methods) to a classification problem.
+ There are two target outputs—that of signal, and that of noise.
+ We could have had one output PE, with signal corresponding to 1 and noise
+ to -1.
+ But in accordance with standard practice, we instead had two output PE’s,
+ and had signal correspond to [1;0] and noise to [0;1] (appropriately scaled).
+ Thus our network performs a nonlinear mapping from 8-D (or 24-D if we are
+ using the raw data) space to 2-D space.
+ 
+\end_layout
+
+\begin_layout Standard
+Naturally, upon training our network, all outputs will not fall perfectly
+ on [1;0] or [0;1].
+ Instead, we expect them to typically fall between the two extremes.
+ For an unbiased classification scheme, we simply draw a 45 degree line
+ through the origin, declaring points below to be signal and those above
+ to be noise.
+ However, we can vary this line to improve the ultimate significance ratings.
+ For example, for our purposes false positives are more detrimental than
+ false negatives.
+ For this reason we can bias the classifier so that it is more eager to
+ perform signal or noise classifications.
+ 
+\end_layout
+
+\begin_layout Standard
+Earlier classification methods, such as cuts (i.e., thresholding) used by
+ the physicists, are more simple and primitive than neural network methods.
+ An alternative technique, used by Onkur Sen for his physics senior thesis,
+ is boosted decision trees.
+ In each case, the ultimate goal is improving significance, because more
+ significance is literally money, because it translates into less time needed
+ at the LHC to achieve an equal certainty of results.
+ 
+\end_layout
+
+\begin_layout Subsection
+Artificial Neural Networks
+\end_layout
+
+\begin_layout Standard
+We have input data consisting of signal and noise events, which we wish
+ to classify.
+ For each event, quantities such as energy and momentum four-vectors have
+ been recorded.
+ However, the physicists have devised a different (and smaller) set of scalar
+ parameters, eight in total, which represent significant features of the
+ data.
+ We use these as our input features, and thus we have an eight-dimensional
+ input space for events.
+ 
+\end_layout
+
+\begin_layout Standard
+Our goal is to maximize the statistical significance, defined as the ratio
+ of signal to the square root of background events.
+ We do this through obtaining a larger ratio of signal to noise than would
+ otherwise be possible without machine learning techniques.
+ We attack the problem with a Multilayer Perceptron trained through Backpropagat
+ion, as well as with an SOM.
+ In the case of the SOM, prototypes attached to the lattice neurons naturally
+ find clusters of patterns in the input space.
+ Upon completing the SOM training, we can see which lattice neurons become
+ associated with regions of especially rich signal concentration.
+ We then look to the where in the input space the corresponding prototype
+ points to find a region of higher significance.
+ 
+\end_layout
+
+\begin_layout Subsection
+SOM Analysis
+\end_layout
+
+\begin_layout Standard
+As seen on the second of our results slides, we trained an SOM to find clusters
+ of data points in the input space.
+ We first did with 8-D prototypes attached to each lattice PE.
+ Here the eight dimensions correspond to the physicists’ derived parameters.
+ After the network was trained, we used three visualization techniques.
+ [By the way, Robert, I never asked you how you did this! The colored SOM
+ pictures are gorgeous.] We counted the number of signal and noise events
+ that mapped to each PE, and we added red or green light, respectively,
+ to each SOM cell accordingly.
+ Thus a bright yellow square has many signal and noise events mapping to
+ that lattice element (as happens in the top-left corner of the derived
+ SOM), and a dark square has few events mapping to it.
+ Finally, we also superimposed the prototype on each square (visualized
+ as a blue line, or function).
+ These visualizations combine to give a sense of how the prototypes settled
+ in the input space, and which signal and noise events flow into a given
+ prototype.
+ The SOM for the derived variables converged as desired.
+ There are a cluster of lattice cells that have a high concentration of
+ signal events (visualized in red), and much the remaining space is solidly
+ noise (visualized in green).
+ The yellow square in the top-left corner we interpret as an anomaly, but
+ one which in no way detracts from our results.
+ The colored plot, however, does not have all of the information that we
+ desire.
+ For example, it leaves out quantitative information on the gain of each
+ PE, where gain is defined to be the ratio of output signal to noise ration
+ (SNR) to the input SNR.
+ In the best case (results slide p.
+ 3), we see a lattice cell with a gain of over 20.
+ As a theoretical aside, it is important that the gain number be large,
+ because we necessarily sacrifice significance when we cut out many of the
+ input data points.
+ Thus, we need a large concentration of signal in a given lattice cell to
+ compensate for this loss.
+ 
+\end_layout
+
+\begin_layout Standard
+[I skip over results slide 4, because I still do not feel that I have anything
+ convincing to say about this slide.
+ I’m interested in looking over what is filled in here, as I’ll analyze
+ all the results much more seriously as we move to publication.]
+\end_layout
+
+\begin_layout Standard
+On results slide 5, we repeat the SOM analysis, except this time we use
+ the raw data.
+ Thus, our prototypes extend into 24-D space, corresponding to the 6 particle
+ jets each with their accompanying 4-vector of energy and momentum.
+ We see the increase in input space visually because the blue lines in each
+ cell (representing the prototypes) have more “wiggles”.
+ This is because they are connecting 24 points, instead of merely 8.
+ Superficially, these results look very similar to the results from the
+ second results slide.
+ In both cases we have a concentration of signal that is desirable.
+ However, the gain is much weaker, as the sixth slide reveals.
+ Where before our gain extended past 20, here it barely reaches 5.
+ This means that our filter is non-trivial.
+ It does succeed in identifying clusters in input space corresponding to
+ signal, but it fails to do this so effectively as to make up for the massive
+ amount of data-points cut out by the filter.
+ 
+\end_layout
+
+\begin_layout Standard
+[Results slide 7 is still puzzling to me.
+ It still feels funny that the physicists’ method seems to do worse than
+ nothing at all.
+ This suggests that the physicists must at least be aiming for something
+ other than significance as we concieve it, surely? ] [Actually, this is
+ probably caused by the screwup with the background data Onkur and Padley
+ found on Friday.
+ --RTB2] Also, in the pursuit of publication, we should be very clear on
+ how confident we are in our results, and what results ought to have large
+ error bars around them.
+ For example, if the SOM followed by BP was the best merely by chance, we
+ ought to be very clear about this.] [Actually, we can compute error bars
+ for our significance, based on counting statistics.]
+\end_layout
+
+\begin_layout Subsection
+General Analysis
+\end_layout
+
+\begin_layout Standard
+Ideally, we would want the SOM to perform as well or better on the raw parameter
+s as on the derived parameters.
+ There are several reasons why this might not be the case initially, and
+ why more sophisticated analysis could fix the problem.
+ Firstly, the physicists presumably already have a good intuition for what
+ sorts of variables are the “defining” variables of a system.
+ So by using their derived variables, we are leveraging their intuition.
+ If we make the very reasonable assumption that their intuition is effective,
+ then we reduce the amount of work the SOM must do in finding underlying
+ patterns, because much of the work has already been done.
+ But of course, in the bigger picture, we are concerned with improving machines’
+ capacity to do data analysis on their own, without the help of physicists’
+ intuition.
+ So we should consider a possibility for the relative lack of effectiveness
+ of working with the raw data.
+ A primary cause of this lack of effectiveness is that the derived data
+ includes 3 angles and already normalizes momentum vectors in a certain
+ direction.
+ The raw data does not … [I could say more on this, but with Justin’s work
+ in protein folding, I know this is already very much his area of expertise.
+ So I’ll stop now and let him take this part entirely]
+\end_layout
+
 \begin_layout Section
 Results
 \end_layout
@@ -1921,6 +2518,22 @@ We suspect the success of the 8 derived variables is due to the jet angle
 Next Steps
 \end_layout
 
+\begin_layout Standard
+In addition to what has already been suggested, perhaps we could also train
+ a neural network to optimize for significance directly, instead of only
+ indirectly via the sum-of-squared-errors objective function? Perhaps we
+ could rig an SOM to also take into account some supervised learning techniques,
+ and thus automatically favor clusters of high significance in its algorithm?
+ I confess that I do not understand the details of Robert’s backprop code,
+ the extent to which it increases classification accuracy, and exactly how
+ this classification improvement maps into improved significance.
+ Upon understanding this better, I would also have more to say on alternative
+ neural networks with significance as an objective function already baked
+ in.
+ [RTB2 - My BP code is not special, except for the “bias” aspect, which
+ is just a cruder version of what you were trying with the parabola code.]
+\end_layout
+
 \begin_layout Itemize
 Determine a method of aligning the 24 non-derived variables
 \end_layout
@@ -1937,8 +2550,12 @@ Run a second SOM on the SOM cells with high signal to noise ratios
 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Section
 \start_of_appendix
+Theoretical limitations of Backpropagation
+\end_layout
+
+\begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
 

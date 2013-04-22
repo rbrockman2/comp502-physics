@@ -1,0 +1,1894 @@
+%% Code provided by Onkur Sen for extracting features from raw PYTHIA output files.
+%% Modified by Justin DeVito for direct extraction of all 24 kinematic variables.
+
+# ------------------------------------------
+# Onkur Sen
+# 
+# get_bdt_variables.py
+#
+# Usage: python get_bdt_variables.py [filename]
+# 
+# Reads all event runs from a file,
+# separates each run into two bjj systems,
+# and keeps track of important variables
+# to feed into a boosted decision tree (BDT).
+# ------------------------------------------
+
+from functions import *
+from itertools import combinations
+from math import sqrt
+from sys import argv
+from time import time
+import os
+
+def get_best_bjj(bottoms, jets):
+  """
+  Selects two bjj combinations with highest vectorially summed transverse momentum. Returns the combination with a smaller least-squares error from the top quark and W boson.
+  """
+  
+  if len(jets) < 2: return None, None, None 
+  # ------------------------------------------
+  # SELECT TWO bjj GROUPS WITH HIGHEST P_T
+  # ------------------------------------------
+  
+  first = [0, '', '', '']; second = [0, '', '', ''] # keep track of bjj groups with top two p_t
+  jet_combos = set(combinations(jets, 2)) # all pairs of jets
+
+  for b in bottoms:
+    bsplit = [x for x in b.split(' ') if x != '']
+    for (j1, j2) in jet_combos:
+
+      # p_x and p_y for both events
+      p1, p2 = map(float, splitline(j1)[3:5]), map(float, splitline(j2)[3:5])   
+
+      p = map(sum, zip(p1, p2))           # net x,y-momentum
+      p_t = sqrt(p[0]**2 + p[1]**2)  # transverse momentum p_t
+
+      # keep groups with two highest p_t
+      if p_t > first[0]:
+        second = first
+        first = [p_t, b, j1, j2]
+      elif p_t > second[0]:
+        second = [p_t, b, j1, j2]
+
+  # limiting case: if only 2 jets, then second will never be assigned
+  if second[0] == 0: second = first
+
+  # ----------------------------
+  # CALCULATE M3 FOR BOTH GROUPS
+  # ----------------------------
+  pe1, pe2 = map(get_pe, first[1:]), map(get_pe, second[1:]) # individual energy-momentum 4-vectors
+
+  pe_net1, pe_net2 = sumzip(pe1), sumzip(pe2) # net energy-momentum of both groups
+
+  if pe_net1 == []: return
+  M3_1, M3_2 = invariant_mass(pe_net1), invariant_mass(pe_net2) # invariant mass
+
+  # ------------------------------------
+  # CALCULATE M2 FOR JETS IN BOTH GROUPS
+  # ------------------------------------
+  pe_jets1, pe_jets2 = sumzip(pe1[1:]), sumzip(pe2[1:]) # net energy-momentum for jets
+  M2_1, M2_2 = invariant_mass(pe_jets1), invariant_mass(pe_jets2) # invariant mass
+
+  # -------------------------------------------------------
+  # CALCULATE ERROR FROM b, W MASSES AND ASSIGN BEST TOP QUARK
+  # COLLECT M3 AND M2 CORRESPONDING TO TOP QUARK A ACROSS MULTIPLE EVENTS
+  # -------------------------------------------------------
+  err1, err2 = top_W_error(M3_1, M2_1), top_W_error(M3_2, M2_2)
+  if err1 <= err2:
+    return first, M3_1, M2_1
+  else:
+    return second, M3_2, M2_2
+
+def main():
+  OUT1 = [];
+  OUT2 = [];
+  OUT3 = [];
+  OUT4 = [];
+  OUT5 = [];
+  OUT6 = [];
+  OUT7 = [];
+  OUT8 = [];
+  OUT9 = [];
+  OUT10 = [];
+  OUT11 = [];
+  OUT12 = [];
+  OUT13 = [];
+  OUT14 = [];
+  OUT15 = [];
+  OUT16 = [];
+  OUT17 = [];
+  OUT18 = [];
+  OUT19 = [];
+  OUT20 = [];
+  OUT21 = [];
+  OUT22 = [];
+  OUT23 = [];
+  OUT24 = [];  
+
+
+  M3A = []; M2A = []; M3B = []; M2B = []
+  B_ANGLES = []; J1_ANGLES = []; J2_ANGLES = []; MISSING_E = []
+  enough_bottoms = 0; has_topA = 0; has_topB = 0
+
+  print 'Reading events from source file %s' % argv[1]
+  t = time()
+  events_by_file = get_jets_from_file(argv[1])
+  print 'Done. Took %f secs.' % (time()-t)
+  print
+  print 'Iterating through %d events.' % len(events_by_file)
+  t = time()
+
+  for i in range(len(events_by_file)):
+    (events, bottoms, jets) = events_by_file[i]
+
+    if len(bottoms) < 2:
+      # print 'Event %d has too few bottom quarks' % i
+      continue
+    else: enough_bottoms += 1
+
+    # -----------------------------------
+    # BEST BJJ COMBO = TOP QUARK A
+    # BEST BJJ COMBO FROM REMAINING JETS = TOP QUARK B
+    # -----------------------------------
+    topA, m31, m21 = get_best_bjj(bottoms, jets);
+    if not topA:
+      continue
+    else: has_topA += 1
+
+    # Remove bjj of A from the set of bottoms and jets to consider for system B
+    bottoms2 = [x for x in bottoms if x != topA[1]]
+    jets2 = [x for x in jets if x not in topA[2:]]
+    topB, m32, m22 = get_best_bjj(bottoms2, jets2)
+    if not topB:
+      continue
+    else: has_topB += 1
+
+    # -----------------------------------
+    # AZIMUTHAL ANGLE CUTS
+    # -----------------------------------
+
+    # (Don't know how to use python)
+    all1 = map(float, splitline(topA[1])[3:7])
+    all2 = map(float, splitline(topB[1])[3:7])
+    all3 = map(float, splitline(topA[2])[3:7])
+    all4 = map(float, splitline(topB[2])[3:7])
+    all5 = map(float, splitline(topA[3])[3:7])
+    all6 = map(float, splitline(topB[3])[3:7])
+
+    # Sum transverse momentum components of ALL events in collision
+    # Theoretically should be 0, but it won't be 
+    pT_file_total = sumzip([get_pe(event) for event in events])[:2]
+
+    # "missing" transverse momentum = negative of sum
+    pT_missing = [-1*x for x in pT_file_total]
+
+    # transverse momentum vector of each in bjj of system B
+    pT_bjjB = [get_pe(topB[k])[:2] for k in range(1, 4)]
+
+    # azimuthal angle in between each jet and missing transverse momentum
+    angles = [angle(j, pT_missing) for j in pT_bjjB]
+
+    M3A.append(m31)
+    M2A.append(m21)
+    M3B.append(m32)
+    M2B.append(m22)
+    B_ANGLES.append(angles[0])
+    J1_ANGLES.append(angles[1])
+    J2_ANGLES.append(angles[2])
+    MISSING_E.append(norm(pT_missing))
+
+    OUT1.append(all1[0])
+    OUT2.append(all1[1])
+    OUT3.append(all1[2])
+    OUT4.append(all1[3])
+    OUT5.append(all2[0])
+    OUT6.append(all2[1])
+    OUT7.append(all2[2])
+    OUT8.append(all2[3])
+    OUT9.append(all3[0])
+    OUT10.append(all3[1])
+    OUT11.append(all3[2])
+    OUT12.append(all3[3])
+    OUT13.append(all4[0])
+    OUT14.append(all4[1])
+    OUT15.append(all4[2])
+    OUT16.append(all4[3])
+    OUT17.append(all5[0])
+    OUT18.append(all5[1])
+    OUT19.append(all5[2])
+    OUT20.append(all5[3])
+    OUT21.append(all6[0])
+    OUT22.append(all6[1])
+    OUT23.append(all6[2])
+    OUT24.append(all6[3])   
+
+  print 'Done. Took %f secs.' % (time()-t)
+  print
+  print 'Total number of events: %d' % len(events_by_file)
+  print 'Number of events with enough bottom quarks: %d' % enough_bottoms
+  print 'Number of events with top quark system A: %d' % has_topA
+  print 'Number of events with top quark system B: %d' % has_topB
+
+  # ------------------------------------------------------
+  # OUTPUT VALUES TO FILES FOR ROOT PLOTTING
+  # ------------------------------------------------------
+  print
+  print 'Outputing variables for BDT processing:'
+  variables = ['m3a', 'm2a', 'm3b', 'm2b', 'angles_b', 'angles_j1', 'angles_j2', 'missing_pT']
+  for (i, var) in zip(range(len(variables)), variables):
+    print '%d. %s' % (i+1, var)
+
+  #if not os.path.isdir('bdt_variables_new'): os.system('mkdir bdt_variables_new')
+
+  dlm = ',';
+
+  #if not os.path.isdir('OutputDerVars'):
+  #  os.system('mkdir OutputDerVars')
+
+
+  #filepath = 'OutputDerVars/DV' + argv[1] + '.txt';
+  dlm = ',';
+  f = open('N.txt', 'w')
+  sn = 0; # 1- signal, 0- noise
+  for i in range(0,len(M3A)):
+    f.write(str(OUT1[i]))
+    f.write(dlm)
+    f.write(str(OUT2[i]))
+    f.write(dlm)
+    f.write(str(OUT3[i]))
+    f.write(dlm)
+    f.write(str(OUT4[i]))
+    f.write(dlm)
+    f.write(str(OUT5[i]))
+    f.write(dlm)
+    f.write(str(OUT6[i]))
+    f.write(dlm)
+    f.write(str(OUT7[i]))
+    f.write(dlm)
+    f.write(str(OUT8[i]))
+    f.write(dlm)
+    f.write(str(OUT9[i]))
+    f.write(dlm)
+    f.write(str(OUT10[i]))
+    f.write(dlm)
+    f.write(str(OUT11[i]))
+    f.write(dlm)
+    f.write(str(OUT12[i]))
+    f.write(dlm)
+    f.write(str(OUT13[i]))
+    f.write(dlm)
+    f.write(str(OUT14[i]))
+    f.write(dlm)
+    f.write(str(OUT15[i]))
+    f.write(dlm)
+    f.write(str(OUT16[i]))
+    f.write(dlm)
+    f.write(str(OUT17[i]))
+    f.write(dlm)
+    f.write(str(OUT18[i]))
+    f.write(dlm)
+    f.write(str(OUT19[i]))
+    f.write(dlm)
+    f.write(str(OUT20[i]))
+    f.write(dlm)
+    f.write(str(OUT21[i]))
+    f.write(dlm)
+    f.write(str(OUT22[i]))
+    f.write(dlm)
+    f.write(str(OUT23[i]))
+    f.write(dlm)
+    f.write(str(OUT24[i]))
+    f.write(dlm)
+    f.write(str(sn))
+    f.write(dlm)
+
+    # f.write(str(M3A[i]))
+    # f.write(dlm)
+    # f.write(str(M3B[i]))
+    # f.write(dlm)
+    # f.write(str(M2A[i]))
+    # f.write(dlm)
+    # f.write(str(M2B[i]))
+    # f.write(dlm)
+    # f.write(str(B_ANGLES[i]))
+    # f.write(dlm)
+    # f.write(str(J1_ANGLES[i]))
+    # f.write(dlm)
+    # f.write(str(J2_ANGLES[i]))
+    # f.write(dlm)
+    # f.write(str(MISSING_E[i]))
+    # f.write(dlm)
+    # f.write(str(sn))
+    # f.write(dlm)
+    f.write('\n')
+  f.close()
+
+  # write_array_to_file('bdt_variables/m3a.txt', M3A)                 # 1. M3 OF TOP QUARK A
+  # write_array_to_file('bdt_variables/m3b.txt', M3B)                 # 2. M2 OF TOP QUARK A
+  # write_array_to_file('bdt_variables/m2a.txt', M2A)                 # 3. M3 OF TOP QUARK B
+  # write_array_to_file('bdt_variables/m2b.txt', M2B)                 # 4. M2 OF TOP QUARK B
+  # write_array_to_file('bdt_variables/angles_b.txt', B_ANGLES)       # 5. AZIMUTHAL ANGLES FOR BOTTOM QUARK B
+  # write_array_to_file('bdt_variables/angles_j1.txt', J1_ANGLES)     # 6. AZIMUTHAL ANGLES FOR JET 1 IN SYSTEM B
+  # write_array_to_file('bdt_variables/angles_j2.txt', J2_ANGLES)     # 7. AZIMUTHAL ANGLES FOR JET 2 IN SYSTEM B
+  # write_array_to_file('bdt_variables/missing_pT.txt', MISSING_E)    # 8. MISSING TRANVERSE ENERGY E_T
+
+if __name__ == "__main__":
+  main()
+  
+  
+  
+%% functions.py: Support functions for the above code, also provided by Onkur Sen.
+
+from math import sqrt, acos
+
+# splits event into individual entries to be parsed
+def splitline(line):
+  return [x for x in line.split(' ') if x != '']
+
+# Adds sublists up pointwise to return a "net" list.
+# Used most often for getting net energy-momentum 4-vector
+def sumzip(list):
+  return map(sum, zip(*list))
+
+# Get only the energy-momentum components from an event group 
+def get_pe(event):
+  return map(float, splitline(event)[3:7])
+
+# Calculate invariant mass given an energy-momentum 4-vector
+def invariant_mass(pe):
+  return sqrt(pe[3]**2 - (pe[0]**2 + pe[1]**2 + pe[2]**2))
+
+# For now, calculate RMS error from mass of top quark and W boson
+def top_W_error(M3, M2):
+  m_top = 172.9; m_W = 80.385
+  return sqrt((M3 - m_top)**2 + (M2 - m_W)**2)
+
+# Write the elements of an array to a file, one element per line
+def write_array_to_file(filename, ary):
+  f = open(filename, 'w')
+  for m in ary:
+    f.write(str(m))
+    f.write('\n')
+  f.close()
+
+# calculates the dot product of two vectors
+def dot(x,y):
+  if len(x) != len(y):
+    return 
+  return sum(x_i*y_i for x_i,y_i in zip(x,y))
+
+# calculates 2-norm of a vector
+def norm(x):
+  return sqrt(sum(x_i**2 for x_i in x))
+
+def angle(x,y):
+  return abs(acos( dot(x,y) / (norm(x) * norm(y)) ))
+
+
+def get_jets_from_file(filename):
+  all_files = []; curr_file = []
+  read_flag = False
+  N = 0
+
+  # ------------------------------
+  # READ FILE AND PARSE RECOS ONLY
+  # ------------------------------
+  for line in open(filename):
+    if line.strip() == 'EndReco':
+      read_flag = False
+      all_files.append(curr_file)
+      curr_file = []
+      N += 1
+    if read_flag:
+      curr_file.append(line)
+    if line.strip() == 'BeginReco':
+      read_flag = True
+
+  events_by_file = []
+
+  for n in range(len(all_files)):
+    # -----------------------------------
+    # READ RECOS AND GET 1 EVENT PER LINE
+    # -----------------------------------
+    lines = [l[1:-1] for l in all_files[n]]
+    if lines == []: continue
+
+    events = []; curr_event = []
+    for line in lines:
+      # ignore BeginReco/EndReco or line w/ number of events
+      if len(line) <= 10: continue
+      curr_event.append(line)
+      if line[-1] in ['T', 'F']: # marks the end of an event
+        events.append(''.join(curr_event))
+        curr_event = []
+
+    # -----------------------------------
+    # GET JETS AND BOTTOM QUARK EVENTS
+    # -----------------------------------
+    bottoms = []; jets = []
+    for event in events:
+      entries = splitline(event)
+      if len(entries) >= 13 and entries[2] == '4': # jet
+        # separate bottom quarks from non-tagged jets
+        bottoms.append(event) if entries[13] == '5.' else jets.append(event)
+
+    events_by_file.append((events, bottoms, jets))
+
+  return events_by_file
+
+  
+  
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% physics_bp_script.m: Use backpropagation ANN to separate signal from 
+% noise in stop squark signal / top quark background data.
+
+clear classes;
+set(gcf,'color','w');
+
+% Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
+% Option 3 uses SOM 8-D filtered data.
+option = 3;
+
+% True means generate final output using test data.
+finalOutput = false;
+
+if option == 1
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/DS24/noise_train_24.mat');
+    load('../inputdata/DS24/noise_cv_24.mat');
+    load('../inputdata/DS24/noise_test_24.mat');
+    load('../inputdata/DS24/signal_train_24.mat');
+    load('../inputdata/DS24/signal_cv_24.mat');
+    load('../inputdata/DS24/signal_test_24.mat');
+    bias = 0;
+    signalTrainInput = signal_train_24;
+    noiseTrainInput = noise_train_24;
+    signalCVInput = signal_cv_24;
+    noiseCVInput = noise_cv_24;
+    signalTestInput = signal_test_24;
+    noiseTestInput = noise_test_24;
+end
+
+if option == 2
+    % Load physics training, cross-validation, and test data.
+    load('../inputdata/DS8/noise_train_8.mat');
+    load('../inputdata/DS8/noise_cv_8.mat');
+    load('../inputdata/DS8/noise_test_8.mat');
+    load('../inputdata/DS8/signal_train_8.mat');
+    load('../inputdata/DS8/signal_cv_8.mat');
+    load('../inputdata/DS8/signal_test_8.mat');
+    bias = 0.57;
+    signalTrainInput = signal_train_8;
+    noiseTrainInput = noise_train_8;
+    signalCVInput = signal_cv_8;
+    noiseCVInput = noise_cv_8;
+    signalTestInput = signal_test_8;
+    noiseTestInput = noise_test_8;
+end
+
+if option == 3
+    % Load physics training, cross-validation, and test data.
+    load('../outputdata/filteredNoiseTrain_8_degreeScaled.mat');
+    load('../outputdata/filteredNoiseCV_8_degreeScaled.mat');
+    load('../outputdata/filteredNoiseTest_8_degreeScaled.mat');
+    load('../outputdata/filteredSignalTrain_8_degreeScaled.mat');
+    load('../outputdata/filteredSignalCV_8_degreeScaled.mat');
+    load('../outputdata/filteredSignalTest_8_degreeScaled.mat');
+    bias = 1.1;
+    signalTrainInput = filteredSignalTrain;
+    noiseTrainInput = filteredNoiseTrain;
+    signalCVInput = filteredSignalCV;
+    noiseCVInput = filteredNoiseCV;
+    signalTestInput = filteredSignalTest;
+    noiseTestInput = filteredNoiseTest;
+end
+
+trainInput = [noiseTrainInput;signalTrainInput];
+CVInput = [noiseCVInput;signalCVInput];
+testInput = [noiseTestInput;signalTestInput];
+
+% Rescale BP input parameters to (-0.9, +0.9).
+
+% DON'T ADD ANYTHING HERE!!!!!!!!!!!
+bpScaler = rescaler(-0.9,0.9,trainInput);
+
+% Why not assemble trainInput, CVInput, and testInput later? Because we
+% needed to calibrate the scaler on the training input data for both signal
+% and noise.
+trainInput = bpScaler.scaleForward(trainInput);
+CVInput = bpScaler.scaleForward(CVInput);
+testInput = bpScaler.scaleForward(testInput);
+signalTrainInput = bpScaler.scaleForward(signalTrainInput);
+noiseTrainInput = bpScaler.scaleForward(noiseTrainInput);
+signalCVInput = bpScaler.scaleForward(signalCVInput);
+noiseCVInput = bpScaler.scaleForward(noiseCVInput);
+signalTestInput = bpScaler.scaleForward(signalTestInput);
+noiseTestInput = bpScaler.scaleForward(noiseTestInput);
+
+% Create output labels for data.
+signalTrainOutput = zeros(size(signalTrainInput,1),2);
+signalTrainOutput(:,1) = 1;
+signalTrainOutput(:,2) = 0;
+noiseTrainOutput = zeros(size(noiseTrainInput,1),2);
+noiseTrainOutput(:,1) = 0;
+noiseTrainOutput(:,2) = 1;
+signalCVOutput = zeros(size(signalCVInput,1),2);
+signalCVOutput(:,1) = 1;
+signalCVOutput(:,2) = 0;
+noiseCVOutput = zeros(size(noiseCVInput,1),2);
+noiseCVOutput(:,1) = 0;
+noiseCVOutput(:,2) = 1;
+signalTestOutput = zeros(size(signalTestInput,1),2);
+signalTestOutput(:,1) = 1;
+signalTestOutput(:,2) = 0;
+noiseTestOutput = zeros(size(noiseTestInput,1),2);
+noiseTestOutput(:,1) = 0;
+noiseTestOutput(:,2) = 1;
+
+trainOutput = [noiseTrainOutput;signalTrainOutput];
+CVOutput = [noiseCVOutput;signalCVOutput];
+testOutput = [noiseTestOutput;signalTestOutput];
+
+% DON'T ADD ANYTHING HERE!!!!!!!!!!!
+
+% Map outputs to (-0.9,0.9)
+bpOutScaler = rescaler(-0.9,0.9,trainOutput);
+
+trainOutput = bpOutScaler.scaleForward(trainOutput);
+CVOutput = bpOutScaler.scaleForward(CVOutput);
+testOutput = bpOutScaler.scaleForward(testOutput);
+
+% Load or generate a BP network trained to separate signal from background.
+try 
+    % Attempt to load pre-trained BP object
+    load('mp.mat');
+catch err
+    % Create perceptron object and initialize with widths of input buffer,
+    % hidden layers, and output layer.
+    mp = multiPerp([8;30;2]);
+    
+    
+    % Set training parameters.
+    mp.maxEpochs = 100000; % maximum number of input samples (not epochs)
+    mp.initialLearningRate = 0.01;
+    mp.momentum = 0.3;
+    mp.reportingInterval = 1000; % m = 1000 epochs
+    mp.epochSize = 1; % Set equal to the number of training samples.
+    
+    mp.trainOutput = trainOutput;
+    mp.trainInput = trainInput;
+    mp.testOutput = CVOutput;
+    mp.testInput = CVInput;
+    
+    mp.classifierTargets = [-0.9 +0.9; +0.9 -0.9];
+    
+    mp.signalTrainInput = signalTrainInput;
+    mp.noiseTrainInput = noiseTrainInput;
+    mp.signalCVInput = signalCVInput;
+    mp.noiseCVInput = noiseCVInput;
+    
+    mp.bias = bias;
+  
+    % Train the multilayer perceptron.
+    mp.train();
+    
+    % Save SOM object for reuse later.
+    save('mp.mat','mp');
+end
+
+mp.report.plotSampleError('bp_training.eps','Data filtered by SOM');
+mp.report.plotClassificationError('bp_classification.eps','Data filtered by SOM');
+
+optimalBias = 0;
+maxSignificance = 0;
+for k=1:200
+    bias = 0.01 * (k-1);
+    
+    [truePositive,~] = signal_counter(mp,signalCVInput,bias);
+    [falsePositive,~] = signal_counter(mp,noiseCVInput,bias);
+
+    [significance(k) sigCount noiseCount ] = computeSignificance(truePositive,falsePositive);
+    
+    if significance(k) > maxSignificance && significance(k) ~= Inf
+        optimalBias = bias;
+        maxSignificance = significance(k);
+        bestSigCount = sigCount;
+        bestNoiseCount = noiseCount;
+    end
+end
+figure(3)
+plot((0:199)./100,significance);
+xlabel('Bias');
+ylabel('Significance');
+
+disp(['Maximum significance: ' num2str(maxSignificance)]);
+disp(['Optimal bias: ' num2str(optimalBias)]);
+disp(['Corresponding signal count: ' num2str(bestSigCount)]);
+disp(['Corresponding noise count: ' num2str(bestNoiseCount)]);
+
+[truePositive,bpSignalOutput] = signal_counter(mp,signalCVInput,optimalBias);
+[falsePositive,bpNoiseOutput] = signal_counter(mp,noiseCVInput,optimalBias);
+
+figure(4);
+plot(bpSignalOutput(:,1),bpSignalOutput(:,2),'xk',...
+    bpNoiseOutput(:,1),bpNoiseOutput(:,2),'xr');
+axis([0 1 0 1]);
+
+if finalOutput == 1
+    [truePositive,~] = signal_counter(mp,signalTestInput,optimalBias);
+    [falsePositive,~] = signal_counter(mp,noiseTestInput,optimalBias);
+
+    [bestSignificance sigCount noiseCount ] = computeSignificance(truePositive,falsePositive);
+
+    disp(['Best significance on Test Set: ' num2str(bestSignificance)]);
+    disp(['Corresponding signal count: ' num2str(sigCount)]);
+    disp(['Corresponding noise count: ' num2str(noiseCount)]);
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% multiPerp.m - Class definition for a multilayer perceptron.
+%
+classdef multiPerp < handle % Objects are passed by reference.  
+    properties
+        layers % Array of layers.
+        report % Report object.
+        
+        % Training Parameters
+        maxEpochs = 1000; % maximum number of epochs
+        initialLearningRate = 0.001;
+        momentum = 0;
+        
+        reportingInterval = 10; % number of epochs per reporting interval
+        epochSize = 1; % number of training samples per epoch        
+        
+        trainInput; % training set inputs
+        trainOutput; % training set outputs
+        trainOffset=0; % position in training set
+        trainOrder; % Randomly ordered training set
+        
+        testInput; % test set inputs
+        testOutput; % test set outputs
+        
+        classifierTargets; % prototype output values for each class
+        
+        errorThreshold = 0.05; % Training stops once the error reaches this level.
+        
+        
+        signalTrainInput;
+        noiseTrainInput;
+        signalCVInput;
+        noiseCVInput;
+        bias = 1.1;
+        
+        
+        debug = 0;
+    end
+    
+    methods
+        % Constructor initializes the layers of the perceptron.
+        % Requires a column vector of the number of PEs in each layer,
+        % starting with the input buffer layer.
+        function obj=multiPerp(layerWidths)          
+            % Add layers to the perceptron with the proper number of PEs.
+            for i=1:size(layerWidths,1)-1
+                obj.layers = [obj.layers;layer(layerWidths(i+1),layerWidths(i))];
+            end
+            
+        end
+       
+        % Compute the final output of the multilayer perceptron from the
+        % inputs using forward propagation.
+        function [output] = mpOutput(obj,input)
+            temp = input;
+            for i=1:size(obj.layers,1)
+                temp = obj.layers(i).layerOutput(temp);
+            end
+            output = temp;
+        end
+        
+        
+        function backProp(obj,target,input)
+            output = mpOutput(obj,input);
+            diff = target-output;
+           
+            % Calculate diffs and weight changes.
+            for i=size(obj.layers,1):-1:1
+                diff = obj.layers(i).layerDelta(diff,obj.initialLearningRate);
+            end        
+        end
+        
+        % Update all of the weight matrices at the end of an epoch by 
+        % applying the accumulated weight changes. Momentum is used to
+        % carry over some of the accumulated weight changes to the next
+        % epoch.
+        function updateWeights(obj)
+            for i=1:size(obj.layers,1)
+                obj.layers(i).layerWeightUpdate(obj.momentum);
+            end
+        end
+        
+        % Compute RMSE.
+        function [rmsError] = computeRmsError(obj,outputSet, inputSet)
+            squaredErrorAccum = zeros(size(outputSet,2),1);
+                
+            for i=1:size(outputSet,1)
+
+                output = mpOutput(obj,inputSet(i,:)');
+                target = outputSet(i,:)';
+                
+                squaredErrorAccum = squaredErrorAccum + (target-output).*(target-output);
+            end
+            if obj.debug == 1
+                disp(squaredErrorAccum);
+            end
+            
+            % Add up all RMSE associated with each output.
+           rmsError = norm((squaredErrorAccum/size(outputSet,1)).^0.5,1);
+            
+        end
+        
+        %TODO DocumentMe
+        % Compute classification error.
+        function [acc] = computeClassificationAccuracy(obj,targetOutput, inputSet)           
+            sampleNumber = size(targetOutput,1);
+            hits = 0;
+            
+            actualOutput = zeros(size(targetOutput,1),size(targetOutput,2));
+            correctClass = zeros(size(targetOutput,1),1);
+            closestClass = zeros(size(targetOutput,1),1);
+            
+            for i=1:size(targetOutput,1)             
+               
+                correctClass(i) = 1;
+                correctClassDistance = Inf;
+                for k = 1:size(obj.classifierTargets,1);
+                    outputPrototypeDistance = norm(targetOutput(i,:)-obj.classifierTargets(k,:));
+                    
+                    if outputPrototypeDistance < correctClassDistance; 
+                        correctClassDistance = outputPrototypeDistance;
+                        correctClass(i) = k;
+                    end
+                end
+                
+                actualOutput(i,:) = mpOutput(obj,inputSet(i,:)');
+                closestClass(i) = 1;
+                closestClassDistance = Inf;
+                for k = 1:size(obj.classifierTargets,1);
+                    outputDistance = norm(actualOutput(i,:)-obj.classifierTargets(k,:));
+                                       
+                    if outputDistance < closestClassDistance; 
+                        closestClassDistance = outputDistance;
+                        closestClass(i) = k;
+                    end
+                end
+                
+                if closestClass(i) == correctClass(i)
+                    hits = hits +1;
+                end
+               
+            end      
+           acc = hits/sampleNumber;
+        end
+        
+        
+        % High level function for training the multilayer perceptron on a
+        % given training data set, including generating a report object
+        % containing a record of the speed of training.
+        function train(obj)        
+            % Use a new report object.  Preallocate records for speed.
+            obj.report = annReport(obj.maxEpochs,obj.reportingInterval,obj.epochSize);
+            
+            epoch = 0;
+            
+            while(epoch<obj.maxEpochs)
+                
+                obj.bpLearn(obj.reportingInterval);
+                epoch = epoch + obj.reportingInterval;
+                
+                % Adds to the training statistics after each reporting
+                % interval.
+                error = obj.bpRecall();
+                
+                % Apply stopping criterion.
+                if error < obj.errorThreshold                           
+                     return
+                end
+                                         
+            end
+        end
+        
+        % Performs a number of training epochs equal to totalEpochs. The
+        % training data set is used, with the sample order randomized again
+        % after every time the entire data set has been used.
+        function bpLearn(obj,totalEpochs)
+            epoch = 0;
+            
+            while (epoch < totalEpochs)
+                epoch = epoch +1;
+                iter = 0;
+                
+                % Process one epoch.
+                while (iter < obj.epochSize)
+                    iter = iter + 1; % Every training data point is an iteration.
+                    obj.initialLearningRate = obj.initialLearningRate * (1 - 0.0001);
+                    
+                    % Check for training set wraparound.
+                    obj.trainOffset = mod(obj.trainOffset,size(obj.trainOutput,1));
+                    if obj.trainOffset == 0
+                        % randomize training set order
+                        obj.trainOrder=randperm(size(obj.trainOutput,1));
+                    end
+                    
+                    obj.trainOffset = obj.trainOffset +1;
+                    
+                    % Train samples in a random order.
+                    obj.backProp(obj.trainOutput(obj.trainOrder(obj.trainOffset),:)', ...
+                        obj.trainInput(obj.trainOrder(obj.trainOffset),:)');                               
+                end  
+                % Update weights at the end of an epoch.
+                obj.updateWeights();          
+            end           
+        end
+        
+        % Computes the errors on the training and test data sets with the
+        % weights frozen.  Errors are stored as a record in the report
+        % object.
+        function [error] = bpRecall(obj)
+            trainError = obj.computeRmsError(obj.trainOutput, obj.trainInput); 
+            testError = obj.computeRmsError(obj.testOutput, obj.testInput);                        
+           % trainAccuracy = obj.computeClassificationAccuracy(obj.trainOutput, obj.trainInput);                        
+           % testAccuracy = obj.computeClassificationAccuracy(obj.testOutput, obj.testInput);
+           
+            
+            tp = signal_counter(obj,obj.signalTrainInput,obj.bias);
+            fp = signal_counter(obj,obj.noiseTrainInput,obj.bias);         
+            trainAccuracy = computeSignificance(tp,fp);
+            disp(fp);
+            disp(obj.initialLearningRate);
+            
+            tp = signal_counter(obj,obj.signalCVInput,obj.bias);
+            fp = signal_counter(obj,obj.noiseCVInput,obj.bias);         
+            testAccuracy = computeSignificance(tp,fp);
+            
+            
+            obj.report.addRecord(trainError,testError,trainAccuracy,testAccuracy);  
+            
+            % Training error usable as stopping criterion.
+            error = trainError; 
+        end
+                
+    end 
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% layer.m - Class definition for one layer of a multilayer perceptron.
+%
+classdef layer < handle % Objects are passed by reference.  
+    properties
+        % Weights used to transform the biased input to the layer
+        % into the NET for this layer.  Dimension is output rows 
+        % by biased input cols
+        weightMatrix 
+        
+        % Accumulated change in the weights over the course of an epoch.
+        % Reset to zero after being added to the weights at the end of
+        % an epoch.
+        weightMatrixChange 
+        
+        % Last epoch's weight matrix change.  Multiplied by momentum to be
+        % used as the starting point for the current epoch's weight matrix
+        % change.
+        oldWeightMatrixChange
+        
+        % Sensitivity of the output error to changes in the weights for
+        % the PEs in this layer.
+        delta
+        
+        % The input vector including a bias input of 1 in the first
+        % element.
+        biasedInput
+
+        % The weighted sum of the inputs for each PE.
+        net
+        
+        % The outputs for each PE.  (No bias node included.)
+        output
+    end
+    
+    methods
+        % Constructor initializes weights.
+        function obj=layer(numOutputs,numInputs)
+            layerInit(obj,numOutputs,numInputs);
+        end
+       
+        % Initialize the weight matrix as well as the matrix for keeping 
+        % track of changes in weights during an epoch to be applied at the
+        % end of the epoch.
+        function layerInit(obj,numOutputs,numInputs)
+            % TODO make function. 
+            for n=1:numOutputs 
+                % Small initial values are from Colin Fyfe 4.5.3
+                % Extra column is bias vector
+               
+                %obj.weightMatrix(n,:) = (rand(1,numInputs+1) -0.5) * 4.8 / (numInputs+1);
+                
+                % Small initial values are (-0.1,+0.1)
+                obj.weightMatrix(n,:) = (rand(1,numInputs+1) -0.5)/5;
+            end
+             
+            disp('Initial Weights:')
+            disp(obj.weightMatrix)
+            
+            obj.weightMatrixChange = zeros(size(obj.weightMatrix));
+            obj.oldWeightMatrixChange = zeros(size(obj.weightMatrix));
+        end
+
+        % Compute an output of a layer from the unbiased input.
+        function [output] = layerOutput(obj,input)
+            obj.biasedInput = [1;input];% Add bias input
+            
+            % Compute weighted sum of inputs.
+            obj.net = obj.weightMatrix*obj.biasedInput; 
+           
+            % Apply transfer function f
+            obj.output = tanh(obj.net);
+            
+            % return output
+            output=obj.output;
+        end
+        
+        % Compute delta and compute weight changes for this layer.
+        % Return the 'diff' to be used for computing the delta for the 
+        % previous layer.
+        %
+        % Requires the diff from the next layer and the learning rate.
+        function [newDiff] = layerDelta(obj,diff,learningRate)
+            % Compute derivative of transfer function at the output.
+            % tanh(NET) derivative is 1-output^2
+            fPrime = obj.output.*obj.output.*-1+1;
+            
+            % Delta is the diff from the previous layer 
+            % (weight matrix transposed * prior delta with bias element dropped)
+            % multiplied elementwise by the unbiased output of this layer.
+            obj.delta = fPrime .* diff;
+           
+            % Compute desired change in weights.
+            obj.weightMatrixChange = obj.weightMatrixChange + learningRate * obj.delta*obj.biasedInput';
+            %obj.biasVectorChange = obj.biasVectorChange + learningRate * obj.delta;
+            
+            % diff is weight matrix transposed * delta.
+            % Will get multiplied by previous layer's output (without bias)
+            %  to generate the diff for the previous layer.
+            newDiff = obj.weightMatrix' * obj.delta;
+            newDiff = newDiff(2:end); % Remove bias entry.
+        end
+        
+        % Update this layer's weights the accumulated weight change.
+        % Performed at the end of an epoch.
+        function layerWeightUpdate(obj,momentum)
+            obj.weightMatrix = obj.weightMatrix + obj.weightMatrixChange;
+          %  obj.weightMatrixChange = zeros(size(obj.weightMatrix));
+            obj.weightMatrixChange = momentum * obj.weightMatrixChange;
+        end
+    end 
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% annReport.m - Report object generated when training an ANN.
+%
+classdef annReport < handle % Objects are passed by reference
+
+    properties
+        recordNumber = 0; % Current number of records stored in the report.
+        reportingInterval % Epochs per reporting interval
+        epochSize = 1; % Number of data points per epoch.
+        
+        maxRecords; % Maximum number of records the report can store.
+        
+
+        trainError % Array stores training error for each record.
+        testError % Array stores test error for each record.
+        trainAccuracy % Array stores training accuracy for each record.
+        classificationAccuracy % Array stores classification accuracy for each record.
+       
+    end
+    
+    methods
+        function obj=annReport(maxRecords, reportingInterval, epochSize)
+            obj.maxRecords = maxRecords;
+            obj.reportingInterval = reportingInterval;
+            obj.epochSize = epochSize;
+           
+            obj.trainError = zeros(maxRecords,1);
+            obj.testError = zeros(maxRecords,1);
+            obj.trainAccuracy = zeros(maxRecords,1);
+            obj.classificationAccuracy = zeros(maxRecords,1);
+        end
+        
+        function addRecord(obj,trainError,testError,trainAccuracy,classificationAccuracy)
+            obj.recordNumber = obj.recordNumber +1;
+            
+            disp('Epoch:');
+            disp(obj.recordNumber*obj.reportingInterval);
+            
+            disp('Train RMS Error:');
+            disp(trainError);
+                       
+            disp('Test RMS Error:');
+            disp(testError);
+            
+            disp('Training Accuracy:');
+            disp(trainAccuracy);            
+            
+            disp('Test Accuracy:');
+            disp(classificationAccuracy);
+                          
+            obj.trainError(obj.recordNumber) = trainError;
+            obj.testError(obj.recordNumber) = testError;
+            obj.trainAccuracy(obj.recordNumber) = trainAccuracy;
+            obj.classificationAccuracy(obj.recordNumber) = classificationAccuracy;
+                         
+        end
+        
+        
+        function plotSampleError(obj,outputfile,plotTitle)
+            figure(1);
+            % Note that the epoch number scale starts at the first
+            % reporting period.
+            plot(obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.trainError(1:obj.recordNumber),'-k',...
+            obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.testError(1:obj.recordNumber),'-r');
+            xlabel(['Epoch Number (Epoch size = ' int2str(obj.epochSize) ', m = ' int2str(obj.reportingInterval) ' epochs)']);
+            xlim([obj.reportingInterval obj.recordNumber*obj.reportingInterval]);
+            ylabel('Average RMS Error Over Data Set');
+            legend('Training Data Set','Testing Data Set');
+            title(['RMS Errors for ' plotTitle ' for Testing and Training Data Sets']);
+            set(gcf,'color','w');
+            export_fig(outputfile,1);
+
+            disp('Final Epoch:');
+            disp(obj.recordNumber*obj.reportingInterval);
+        end
+        
+        function plotClassificationError(obj,outputfile,plotTitle)
+            figure(2);
+            % Note that the epoch number scale starts at the first
+            % reporting period.
+            semilogx(obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.trainAccuracy(1:obj.recordNumber),'-k',...
+            obj.reportingInterval:obj.reportingInterval:obj.recordNumber*obj.reportingInterval,obj.classificationAccuracy(1:obj.recordNumber),'-r');
+            xlabel(['Epoch Number (Epoch size = ' int2str(obj.epochSize) ', m = ' int2str(obj.reportingInterval) ' epochs)']);
+            xlim([obj.reportingInterval,obj.recordNumber*obj.reportingInterval]);
+            ylabel('Significance');
+            legend('Training Data Set','Cross-Validation Data Set','Location','SouthWest');
+            title(['Significance Training History for Training and Cross-Validation Data Sets']);
+            set(gcf,'color','w');
+            export_fig(outputfile,2);
+        end      
+    end
+    
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% computeSignificance.m - Calculate the significance of a stop squark physics result.
+%
+function [ significance, finalSignalCount, finalNoiseCount ] = computeSignificance(finalSignalNum, finalNoiseNum )
+% TODO: Remove hard-coded values.
+
+% Cross sections of signal and background in fb for m_stop = 400 GeV and
+% m_neutralino = 100 GeV.
+initialSignalCrossSection = 337; 
+initialNoiseCrossSection = 2E5+0.24E5;
+
+% Significance based on 50 fb^-1 of collisions.
+luminosity = 50;
+
+% Training, test, and crossvalidation sets are 1/3 of entire data set.
+initialSignalNum=(7293+11362) / 3;
+initialNoiseNum=29746 /3;
+
+
+finalSignalCrossSection =  finalSignalNum / initialSignalNum * initialSignalCrossSection;
+finalNoiseCrossSection = finalNoiseNum / initialNoiseNum * initialNoiseCrossSection;
+
+%disp(finalSignalCrossSection);
+%disp(finalNoiseCrossSection);
+
+finalSignalCount = finalSignalCrossSection * luminosity;
+finalNoiseCount = finalNoiseCrossSection * luminosity;
+
+
+significance = finalSignalCount / finalNoiseCount^0.5;
+
+% Goal:  get significance greater than 0.20⋅50 / ((0.26 +0.28 )⋅50) ^ 0.5 =
+% 1.925
+
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% signal_counter.m - Calculate the number of true positives in a data set.
+%
+function [hitNum, output] = signal_counter(mp,dataInput,bias)
+hitNum =0;
+
+output = zeros(size(dataInput,1),2);
+for i=1:size(dataInput,1)
+    output(i,:) = mp.mpOutput(dataInput(i,:)');
+    if output(i,1) > output(i,2) + bias
+        hitNum = hitNum +1;
+    end
+end
+
+end
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% rescaler.m - Class for rescaling sets of data samples in a consistent way.
+%
+classdef rescaler < handle % Objects are passed by reference. 
+    
+    properties
+        minScaledVal;
+        maxScaledVal;
+        maxDataVal;
+        minDataVal;
+        
+    end
+    
+    methods
+        
+        function obj=rescaler(minScaledVal, maxScaledVal,  dataPoints )
+            obj.minScaledVal = minScaledVal;
+            obj.maxScaledVal = maxScaledVal;
+                      
+            obj.maxDataVal = zeros(size(dataPoints,2),1);
+           
+            for j = 1:size(dataPoints,2)
+                obj.maxDataVal(j) = max(dataPoints(:,j));
+                obj.minDataVal(j) = min(dataPoints(:,j));          
+            end
+
+        end
+        
+        function [scaledDataPoints] = scaleForward(obj, dataPoints)
+            scaledDataPoints = zeros(size(dataPoints));
+            
+            for j = 1:size(dataPoints,2)
+                
+                sourceMidpoint = (obj.maxDataVal(j) + obj.minDataVal(j)) / 2;
+                sourceRange = obj.maxDataVal(j) - obj.minDataVal(j);
+                
+                
+                % Rescale to (-1, +1)
+                scaledDataPoints(:,j) = (dataPoints(:,j) - sourceMidpoint)./(sourceRange/2);
+                
+                
+                targetMidpoint = (obj.minScaledVal+obj.maxScaledVal) / 2;
+                targetRange = obj.maxScaledVal - obj.minScaledVal;
+                
+                scaledDataPoints(:,j) = (scaledDataPoints(:,j) .* (targetRange/2)) + targetMidpoint;
+                
+            end       
+        end
+    
+    end
+    
+end
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% physics_som_script.m: Use self-organizing map code to find clusters in
+% stop squark signal / top quark background data.
+
+clear classes;
+set(gcf,'color','w');
+
+% Set SOM dimensions.
+somDim1 = 10;
+somDim2 = 10;
+
+trainingInfoPath = '../traininginfo/';
+inputDataPath = '../inputdata/';
+outputDataPath = '../outputdata/';
+
+% Scaling = 0 has no scaling.  Scaling = 1 scales up angles to degrees.
+% Scaling = 2 centers parameter mean on zero with stddev 1.
+scaling = 1;
+
+% Option 1 uses 24 dimensional raw data, option 2 uses 8 dimensional raw data,
+% Option 3 uses backpropagation data.
+option = 2;
+
+% True means generate final output using test data.
+finalOutput = false;
+
+if option == 1
+    % Load physics training, cross-validation, and test data.
+    load([inputDataPath 'DS24/noise_train_24.mat']);
+    load([inputDataPath 'DS24/noise_cv_24.mat']);
+    load([inputDataPath 'DS24/noise_test_24.mat']);
+    load([inputDataPath 'DS24/signal_train_24.mat']);
+    load([inputDataPath 'DS24/signal_cv_24.mat']);
+    load([inputDataPath 'DS24/signal_test_24.mat']);
+    signalTrain = signal_train_24;
+    noiseTrain = noise_train_24;
+    signalCV = signal_cv_24;
+    noiseCV = noise_cv_24;
+    signalTest = signal_test_24;
+    noiseTest = noise_test_24;
+end
+
+if option == 2
+    % Load physics training, cross-validation, and test data.
+    load([inputDataPath 'DS8/noise_train_8.mat']);
+    load([inputDataPath 'DS8/noise_cv_8.mat']);
+    load([inputDataPath 'DS8/noise_test_8.mat']);
+    load([inputDataPath 'DS8/signal_train_8.mat']);
+    load([inputDataPath 'DS8/signal_cv_8.mat']);
+    load([inputDataPath 'DS8/signal_test_8.mat']);
+    signalTrain = signal_train_8;
+    noiseTrain = noise_train_8;
+    signalCV = signal_cv_8;
+    noiseCV = noise_cv_8;
+    signalTest = signal_test_8;
+    noiseTest = noise_test_8;
+end
+
+% DONT INSERT ANYTHING HERE!
+
+% Rescaling
+if scaling == 1    
+    % Rescale angles from 0-pi to 0-360.
+    signalTrain(:,5:7)  = signalTrain(:,5:7) * 360 / pi;
+    noiseTrain(:,5:7)  = noiseTrain(:,5:7) * 360 / pi;
+    signalCV(:,5:7)  = signalCV(:,5:7) * 360 / pi;
+    noiseCV(:,5:7)  = noiseCV(:,5:7) * 360 / pi;
+    signalTest(:,5:7)  = signalTest(:,5:7) * 360 / pi;
+    noiseTest(:,5:7)  = noiseTest(:,5:7) * 360 / pi;
+end
+
+if scaling == 2
+    % Rescale everything to mean zero, stddev 1.
+    somStdScaler = stdScaler(signalTrain);
+    signalTrain = somStdScaler.scaleForward(signalTrain);
+    noiseTrain = somStdScaler.scaleForward(noiseTrain);
+    signalCV = somStdScaler.scaleForward(signalCV);
+    noiseCV = somStdScaler.scaleForward(noiseCV);
+    signalTest = somStdScaler.scaleForward(signalTest);
+    noiseTest = somStdScaler.scaleForward(noiseTest);
+end
+
+trainInput = [noiseTrain;signalTrain];
+
+% Load or generate a SOM trained to separate signal from background.
+try 
+    % Attempt to load pre-trained SOM object
+    load('kohonenSom.mat');
+catch err
+    % Create and train new SOM
+    kohonenSom = som(somDim1,somDim2,size(signalTrain,2));
+    
+    kohonenSom.trainInputs = trainInput';
+    kohonenSom.maxIter = 750001;
+    % Set iterations used for exporting graphs.
+    kohonenSom.iterList = [0 1000 10000 100000 250000 750000];
+    
+    kohonenSom.trainingInfoPath = trainingInfoPath;
+    
+    % Train SOM and export graphs for specified iterations.
+    kohonenSom.train();
+    
+    % Save SOM object for reuse later.
+    save('kohonenSom.mat','kohonenSom');
+end
+
+% Compute number of signal and noise events for each SOM cell.
+signalInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(signalTrain');
+noiseInputsPerPEMatrix = kohonenSom.computeInputsPerPEMatrix(noiseTrain');
+
+% Plot distribution of signal and noise events along with normalized
+% exemplars for each SOM cell.
+exemplarSquaresPlot(signalInputsPerPEMatrix,noiseInputsPerPEMatrix,zeros(kohonenSom.height,kohonenSom.width),kohonenSom,2);
+
+     
+grayscaleSquaresPlot(signalInputsPerPEMatrix,3);
+grayscaleSquaresPlot(noiseInputsPerPEMatrix,4);
+
+
+% Compute SNR gain for each SOM cell.
+trainSNR = size(signalTrain,1)/size(noiseTrain,1);
+gainMatrix = zeros(kohonenSom.height,kohonenSom.width);
+for i=1:kohonenSom.height
+    for j=1:kohonenSom.width
+        cellSNR = signalInputsPerPEMatrix(i,j)/noiseInputsPerPEMatrix(i,j);
+        
+        gainMatrix(i,j) = cellSNR/trainSNR;
+    end
+end
+       
+% Plot SNR gain for each SOM cell.
+grayscaleSquaresPlot(gainMatrix,5);
+
+% Determine minimum gain associated with maximum significance on
+% cross-validation set.
+maxSignificance = 0;
+optimalGain = 0;
+for k=1:25
+    minimumGain = k-1;
+    
+    mySomFilter = somFilter(gainMatrix,kohonenSom,minimumGain);
+    
+    filteredSignalCV = mySomFilter.filterEvents(signalCV);
+    filteredNoiseCV = mySomFilter.filterEvents(noiseCV);
+     
+    significance(k) = computeSignificance(size(filteredSignalCV,1),size(filteredNoiseCV,1));
+    if significance(k) > maxSignificance
+        maxSignificance = significance(k);
+        optimalGain = minimumGain;
+    end
+  %  disp(significance(k));
+    
+end
+
+% Export filtered training and cross-validation data using optimal SOM
+% filter parameters, yielding highest significance.  Note still scaled!
+mySomFilter = somFilter(gainMatrix,kohonenSom,optimalGain);
+filteredSignalCV = mySomFilter.filterEvents(signalCV);
+filteredNoiseCV = mySomFilter.filterEvents(noiseCV);
+filteredSignalTrain = mySomFilter.filterEvents(signalTrain);
+filteredNoiseTrain = mySomFilter.filterEvents(noiseTrain);
+filteredSignalTest = mySomFilter.filterEvents(signalTest);
+filteredNoiseTest = mySomFilter.filterEvents(noiseTest);
+
+% Scale back to original input scale before saving filtered samples.
+if scaling == 1
+    signalTrain(:,5:7)  = signalTrain(:,5:7) * pi/ 360;
+    noiseTrain(:,5:7)  = noiseTrain(:,5:7) * pi/ 360;
+    signalCV(:,5:7)  = signalCV(:,5:7) * pi/ 360;
+    noiseCV(:,5:7)  = noiseCV(:,5:7) * pi/ 360;
+    signalTest(:,5:7)  = signalTest(:,5:7) * pi/ 360;
+    noiseTest(:,5:7)  = noiseTest(:,5:7) * pi/ 360;
+end
+
+if scaling == 2
+    signalTrain = somStdScaler.scaleBackward(signalTrain);
+    noiseTrain = somStdScaler.scaleBackward(noiseTrain);
+    signalCV = somStdScaler.scaleBackward(signalCV);
+    noiseCV = somStdScaler.scaleBackward(noiseCV);
+    signalTest = somStdScaler.scaleBackward(signalTest);
+    noiseTest = somStdScaler.scaleBackward(noiseTest);
+end
+
+save('../outputdata/filteredSignalCV.mat','filteredSignalCV');
+save('../outputdata/filteredNoiseCV.mat','filteredNoiseCV');
+save('../outputdata/filteredSignalTrain.mat','filteredSignalTrain');
+save('../outputdata/filteredNoiseTrain.mat','filteredNoiseTrain');
+save('../outputdata/filteredSignalTest.mat','filteredSignalTest');
+save('../outputdata/filteredNoiseTest.mat','filteredNoiseTest');
+
+figure(6)
+plot(0:24,significance);
+xlabel('Minimum SOM Cell Gain');
+ylabel('Signal Significance','interpreter','latex','fontsize',16)
+title('Signal Significance vs. Minimum SOM Filter Gain');
+
+disp(['Best Significance: ' num2str(significance(optimalGain+1))]);
+disp(['Optimal SOM Filter Gain: ' num2str(optimalGain)]);
+
+if finalOutput == true
+
+    finalSignificance = computeSignificance(size(filteredSignalTest,1),size(filteredNoiseTest,1));
+    disp(['Test Set Significance: ' num2str(finalSignificance)]);
+end
+
+    
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% som.m - Class definition for a self-organizing map.
+%
+classdef som < handle % Objects are passed by reference.  
+    properties
+        weightMatrix
+    
+    
+        height
+        width             
+        numInputs % Input Dimensionality
+        
+        % Training Parameters
+        maxIter = 500001;
+        sigma;
+        learningRate=0.3;
+        
+        reportingInterval = 100; % number of iterations per reporting interval
+
+        trainingInfoPath = '';
+        
+        iterList;
+        trainInputs;
+    end
+    
+    methods
+        function obj=som(height,width,numInputs)          
+            obj.weightMatrix=zeros(height,width,numInputs);
+            
+            obj.height= height;
+            obj.width= width;
+            obj.numInputs = numInputs;
+            
+            obj.sigma = (obj.width+obj.height)/4;
+            
+            for n=1:height              
+            % Small initial values are (-0.1,+0.1)
+                obj.weightMatrix(n,:,:) = (rand(1,width,numInputs) -0.5)/5;
+               
+            end
+     
+        end
+        
+        function plotMappingInputSpace(obj,iter) % Only works for 2-D input
+            figure(1);
+            for i = 1:obj.height
+                for j = 1:obj.width
+                    if i<obj.height
+                        plot([obj.weightMatrix(i,j,1) obj.weightMatrix(i+1,j,1)],...
+                        [obj.weightMatrix(i,j,2) obj.weightMatrix(i+1,j,2)]);
+                        hold on;
+                    end
+                    if j<obj.width
+                        plot([obj.weightMatrix(i,j,1) obj.weightMatrix(i,j+1,1)],...
+                        [obj.weightMatrix(i,j,2) obj.weightMatrix(i,j+1,2)]);
+                        hold on;
+                    end
+                end
+            end
+            hold off;
+            title(['Iteration=' int2str(iter) ' Sigma = ' num2str(obj.sigma,8) ' Eta=' num2str(obj.learningRate,8)]);
+            ylabel('Coordinate 1');
+            xlabel('Coordinate 2');      
+        end             
+        
+        function [inputsPerPEMatrix] = computeInputsPerPEMatrix(obj, inputs)
+            inputsPerPEMatrix = zeros(obj.height,obj.width);
+            for l=1:size(inputs,2)
+                correctPE = obj.findWinner(inputs(:,l));
+                inputsPerPEMatrix(correctPE(1),correctPE(2)) = ...
+                  inputsPerPEMatrix(correctPE(1),correctPE(2)) +1;
+                
+            end
+        end
+        
+        function plotMappingSOMGrid(obj,iter)
+           inputsPerPEMatrix = obj.computeInputsPerPEMatrix(obj.trainInputs);
+           
+            hold on
+            for i=1:obj.height
+               for j=1:obj.width
+                 
+                       color = inputsPerPEMatrix(i,j)/max(max(inputsPerPEMatrix));
+                       if color > 1
+                           color = 1;
+                       end
+                       rectangle('Position',[i-0.5,j-0.5,1,1],...
+                                 'Curvature',[0,0],...
+                                 'FaceColor',color*[1 1 1]);
+               end
+           end
+           axis([0.5 obj.height+0.5 0.5 obj.width+0.5]);   
+           xlabel('Coordinate 1');
+           ylabel('Coordinate 2');
+           title(['Sigma: ' num2str(obj.sigma) ' Eta: ' num2str(obj.learningRate) ' Iter: ' int2str(iter)]);     
+           hold off
+        end
+      
+
+               
+        function [minDistanceCoordinates] = findWinner(obj,inputVector)
+            coordinateDistanceMatrix = obj.weightMatrix;
+            for k=1:obj.numInputs
+                coordinateDistanceMatrix(:,:,k)=coordinateDistanceMatrix(:,:,k)-inputVector(k);
+            end
+            pythagoreanDistanceSquared = zeros(obj.height,obj.width);
+            
+            for k=1:obj.numInputs
+                pythagoreanDistanceSquared = pythagoreanDistanceSquared + ...
+                    coordinateDistanceMatrix(:,:,k).*coordinateDistanceMatrix(:,:,k);
+            end
+            
+            minDistanceCoordinates = [1 1];
+            minDistanceValue = pythagoreanDistanceSquared(1,1);
+            for i=1:obj.height
+                for j=1:obj.width
+                    if pythagoreanDistanceSquared(i,j) < minDistanceValue
+                        minDistanceValue = pythagoreanDistanceSquared(i,j);
+                        minDistanceCoordinates = [i j];
+                    end
+                end
+            end           
+        end
+        
+        function [h] = neighborhoodFunction(obj,winnerCoordinates)
+           h=zeros(obj.height,obj.width);
+           for i=1:obj.height
+               for j=1:obj.width
+                   rowDistance = winnerCoordinates(1)-i;
+                   colDistance = winnerCoordinates(2)-j;
+                   distSquared = rowDistance^2+colDistance^2;
+                   h(i,j)=exp(-distSquared/(2*obj.sigma^2));
+               end
+           end           
+           %disp(h);        
+        end
+        
+        function updateWeights(obj,inputVector)
+            winnerCoordinates = obj.findWinner(inputVector);
+            %disp(winnerCoordinates);
+            h = obj.neighborhoodFunction(winnerCoordinates);
+            weightChange =zeros(obj.height,obj.width,obj.numInputs);
+            for k=1:obj.numInputs
+                weightChange(:,:,k)=obj.learningRate*(-obj.weightMatrix(:,:,k)+inputVector(k)).*h;
+               
+            end
+           obj.weightMatrix = obj.weightMatrix + weightChange;
+           %disp(weightChange);        
+        end
+        
+        function [iterBool] = inList(obj,iter)
+            iterBool = 0;
+            for i=1:size(obj.iterList,2)
+                if iter == obj.iterList(i)
+                    iterBool = 1;
+                end
+            end
+        end       
+        
+        function somLearn(obj,totalIter)                    
+            iter = 0;
+            while (iter < totalIter)
+                
+                    iter = iter + 1; % Every training data point is an iteration.
+                    currentInput = obj.trainInputs(:,randi(size(obj.trainInputs,2)));
+                    obj.updateWeights(currentInput);
+                                   
+                    % Shrink sigma and learning rate with time.
+                    obj.sigma = (obj.sigma-1.5) * (1- 0.00001) +1.5;
+                    obj.learningRate= obj.learningRate * (1-0.00001);                                                                    
+            end             
+        end      
+        
+        % High level function for training the som on a
+        % given training data set.
+        function train(obj)                   
+            iter = 0;
+            
+            while(iter<obj.maxIter)       
+                figure(1)
+                plot(1,1,'o','MarkerSize',1);
+                obj.plotMappingSOMGrid(iter);
+                
+                if obj.inList(iter) == 1
+                  %  pause;
+                    set(gcf,'color','w');       
+                    export_fig([obj.trainingInfoPath 'som_train_' int2str(iter) '.eps'],1);
+                end
+                
+                obj.somLearn(obj.reportingInterval);
+                iter = iter + obj.reportingInterval;
+            end
+        end
+        
+    end 
+end
+
+
+function [ ] = grayscaleSquaresPlot( matrix, figureNum )
+% greyscaleSquaresPlot.m  
+%
+%   Creates a 2-D plot of squares centered on the indexes of the
+%   matrix.  Each square is given an greyscale value corresponding to the
+%   matrix value scaled by the maximum value for that particular matrix.
+%
+%   Inputs:
+%
+%       matrix:  unscaled intensity value
+%       figureNum:  MATLAB figure to use
+%
+%   All matrix values must be non-negative.
+%   Essentially a wrapper for colorSquaresPlot.
+%
+
+
+colorSquaresPlot(matrix,matrix,matrix,figureNum);
+
+colorbar;
+%   Color bar will range from zero to the maximum matrix value.
+caxis([0 max(max(matrix))]);
+
+set(gcf,'color','w');
+colormap('gray');
+end
+
+
+function [  ] = exemplarSquaresPlot( redMatrix, greenMatrix, blueMatrix, kohonenSom,figureNum)
+% exemplarSquaresPlot.m  
+%
+%   Creates a 2-D plot of squares centered on the indexes of the
+%   matrices, which must all have the same dimensions.  Each square is 
+%   given an RGB value, with color vales corresponding to the matrix value
+%   scaled by the maximum value for that particular matrix.  The normalized
+%   exemplars for SOM cells are plotted in the corresponding squares. 
+%
+%   Inputs:
+%
+%       redMatrix:  unscaled red intensity value
+%       greenMatrix:  unscaled red intensity value
+%       blueMatrix:  unscaled red intensity value
+%       kohonenSom:  trained SOM
+%       figureNum:  MATLAB figure to use
+%
+%   All matrix values must be non-negative.
+
+% Plot colored squares
+colorSquaresPlot( redMatrix, greenMatrix, blueMatrix,figureNum)
+
+maxVal = max(max(max(kohonenSom.weightMatrix)));
+minVal = min(min(min(kohonenSom.weightMatrix)));
+range = maxVal-minVal;
+
+% Plot a little graph of each normalized exemplar in each SOM square.
+hold on;
+for i=1:size(redMatrix,1)
+    for j=1:size(redMatrix,2)
+        exemplar = zeros(kohonenSom.numInputs,1);
+        for k=1:kohonenSom.numInputs
+            exemplar(k) = (kohonenSom.weightMatrix(i,j,k)-minVal)/range;
+        end
+        exemplarVarAxis = ((1:kohonenSom.numInputs)-0.5)/kohonenSom.numInputs;       
+        plot(exemplarVarAxis+i-0.5,exemplar+j-0.5);    
+    end
+end
+hold off;
+
+end
+
+
+function [  ] = colorSquaresPlot( redMatrix, greenMatrix, blueMatrix, figureNum)
+% colorSquaresPlot.m  
+%
+%   Creates a 2-D plot of squares centered on the indexes of the
+%   matrices, which must all have the same dimensions.  Each square is 
+%   given an RGB value, with color vales corresponding to the matrix value
+%   scaled by the maximum value for that particular matrix.
+%
+%   Inputs:
+%
+%       redMatrix:  unscaled red intensity value
+%       greenMatrix:  unscaled red intensity value
+%       blueMatrix:  unscaled red intensity value
+%       figureNum:  MATLAB figure to use
+%
+%   All matrix values must be non-negative.
+
+figure(figureNum);
+plot(1,1,'o'); % dummy dot to initialize graph
+hold on;
+
+redMaxVal = max(max(redMatrix));
+if redMaxVal == 0
+    redMaxVal = 1;
+end
+
+greenMaxVal = max(max(greenMatrix));
+if greenMaxVal == 0
+    greenMaxVal = 1;
+end
+
+blueMaxVal = max(max(blueMatrix));
+if blueMaxVal == 0
+    blueMaxVal = 1;
+end
+
+
+for i=1:size(redMatrix,1)
+    for j=1:size(redMatrix,2)
+        redVal = redMatrix(i,j)/redMaxVal;
+        greenVal = greenMatrix(i,j)/greenMaxVal;
+        blueVal = blueMatrix(i,j)/blueMaxVal;
+        
+        rectangle('Position',[i-0.5,j-0.5,1,1],...
+            'Curvature',[0,0],...
+            'FaceColor',[redVal greenVal blueVal]);
+
+        
+    end
+end
+hold off;
+axis([0.5 size(redMatrix,1)+0.5 0.5 size(redMatrix,2)+0.5]);
+xlabel('Coordinate 1');
+ylabel('Coordinate 2');
+set(gcf,'color','w');
+
+end
+
+
+
+% This is code for creating the boxplots and general average values over
+% the eight derived physics variables. 
+
+%function boxplot_gen
+
+datapath = '../inputdata/DS8/';
+
+signal_train = load([datapath 'signal_train_8.mat']);
+noise_train = load([datapath 'noise_train_8.mat']);
+
+% Now I just need to take the data and put it into matrix form, instead of
+% having it in the cell form as before. 
+Xsig = cell2mat(struct2cell(signal_train)); Xnoi = cell2mat(struct2cell(noise_train));
+Xsig = Xsig'; Xnoi = Xnoi';
+
+% Now we need to scale these values. 
+% initializing:
+Xsig_sc = zeros(size(Xsig)); Xnoi_sc = zeros(size(Xnoi));
+for i = 1:8
+    Xsig_sc(i,:) = Xsig(i,:)/max(Xsig(i,:));
+    Xnoi_sc(i,:) = Xnoi(i,:)/max(Xnoi(i,:));
+end
+
+% Now it is time to generate vectors of the average values. 
+Xsig_avg = zeros(8,1); Xnoi_avg = zeros(8,1);
+
+for i = 1:8
+    Xsig_avg(i) = mean(Xsig_sc(i,:));
+    Xnoi_avg(i) = mean(Xnoi_sc(i,:));
+end
+
+% blue for signal, red for noise
+plot(1:8,Xsig_avg,'-bs','linewidth',2); hold on
+set(gca,'XTick',[])
+plot(1:8,Xnoi_avg,'-rs','linewidth',2)
+hold on
+set(gca,'XTickLabel',{' '})
+boxplot(Xsig_sc','whisker',25,'colors','b','notch','off')
+set(gca,'XTickLabel',{' '})
+boxplot(Xnoi_sc','whisker',25,'colors','r','notch','off')
+set(gca,'XTickLabel',{' '})
+hold on
+
+
+title('Averages, Maxima, and Minima for the Eight Derived Features', ...
+    'interpreter','latex','fontsize',18)
+ylabel('Parameter values scaled between 0 and 1',...
+    'interpreter','latex','fontsize',16)
+xlabel('Derived physics parameters','interpreter','latex','fontsize',16)
+
+set(gca,'XTick',[])
+
+xaxlabels1 = {'','','','','','','',''};
+xaxlabels2 = {'m3a','m3b','m2a','m2b','angb','angj1','angj2','mspt'};
+boxplot(Xsig_sc','whisker',25,'colors','b','labels',xaxlabels1)
+boxplot(Xnoi_sc','whisker',25,'colors','r','labels',xaxlabels2)
+
+hold off
+title('Statistics for the Derived Features', ...
+    'interpreter','latex','fontsize',18)
+ylabel('Parameter Values (Scaling: [0,1] )',...
+    'interpreter','latex','fontsize',16)
+xlabel('Derived Parameters','interpreter','latex','fontsize',16)
+
+legend('Signal Event','Noise Event','fontsize',12)
+
+set(gcf,'color','w')
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% DS8process_script.m
+%
+M55 = load('Table_100t400_8TeV-55.txt');
+M52 = load('Table_100t400_8TeV-52.txt');
+MN = load('Table_ttjALL.txt');
+
+setsizeN = floor(size(MN,1)/3);
+
+MS = [M55; M52];
+
+setsizeS = floor(size(MS,1)/3);
+
+noise_train_8 = MN(1:setsizeN,1:end-1);
+noise_cv_8 = MN(1+setsizeN:2*setsizeN,1:end-1);
+noise_test_8 = MN(1+2*setsizeN:3*setsizeN,1:end-1);
+
+signal_train_8 = MS(1:setsizeS,1:end-1);
+signal_cv_8 = MS(1+setsizeS:2*setsizeS,1:end-1);
+signal_test_8 = MS(1+2*setsizeS:3*setsizeS,1:end-1);
+
+save('noise_train_8.mat','noise_train_8')
+save('noise_cv_8.mat','noise_cv_8')
+save('noise_test_8.mat','noise_test_8')
+save('signal_train_8.mat','signal_train_8')
+save('signal_cv_8.mat','signal_cv_8')
+save('signal_test_8.mat','signal_test_8')
+
+dlmwrite('noise_train_8.csv',MN(1:setsizeN,1:end-1),',')
+dlmwrite('noise_cv_8.csv',MN(1+setsizeN:2*setsizeN,1:end-1),',')
+dlmwrite('noise_test_8.csv',MN(1+2*setsizeN:3*setsizeN,1:end-1),',')
+
+dlmwrite('signal_train_8.csv',MS(1:setsizeS,1:end-1),',')
+dlmwrite('signal_cv_8.csv',MS(1+setsizeS:2*setsizeS,1:end-1),',')
+dlmwrite('signal_test_8.csv',MS(1+2*setsizeS:3*setsizeS,1:end-1),',')
+
+
+
+% Robert Brockman II, Justin DeVito, and Ricky LeVan
+% COMP 502 Spring 2013
+% Final Project
+%
+% DS24process_script.m
+%
+M55 = load('55.txt');
+M52 = load('52.txt');
+MN = load('N.txt');
+
+setsizeN = floor(size(MN,1)/3);
+
+MS = [M55; M52];
+
+
+setsizeS = floor(size(MS,1)/3);
+
+noise_train_24 = MN(1:setsizeN,1:end-1);
+noise_cv_24 = MN(1+setsizeN:2*setsizeN,1:end-1);
+noise_test_24 = MN(1+2*setsizeN:3*setsizeN,1:end-1);
+
+signal_train_24 = MS(1:setsizeS,1:end-1);
+signal_cv_24 = MS(1+setsizeS:2*setsizeS,1:end-1);
+signal_test_24 = MS(1+2*setsizeS:3*setsizeS,1:end-1);
+
+save('noise_train_24.mat','noise_train_24')
+save('noise_cv_24.mat','noise_cv_24')
+save('noise_test_24.mat','noise_test_24')
+save('signal_train_24.mat','signal_train_24')
+save('signal_cv_24.mat','signal_cv_24')
+save('signal_test_24.mat','signal_test_24')
+
+dlmwrite('noise_train_24.csv',MN(1:setsizeN,1:end-1),',')
+dlmwrite('noise_cv_24.csv',MN(1+setsizeN:2*setsizeN,1:end-1),',')
+dlmwrite('noise_test_24.csv',MN(1+2*setsizeN:3*setsizeN,1:end-1),',')
+
+dlmwrite('signal_train_24.csv',MS(1:setsizeS,1:end-1),',')
+dlmwrite('signal_cv_24.csv',MS(1+setsizeS:2*setsizeS,1:end-1),',')
+dlmwrite('signal_test_24.csv',MS(1+2*setsizeS:3*setsizeS,1:end-1),',')
+
+
